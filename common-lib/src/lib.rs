@@ -1,19 +1,19 @@
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, sync::Arc};
-use synth_8080_lib::OscType;
-pub use synth_8080_lib::{notes::Note, Float};
+// use synth_8080_lib::OscType;
+// pub use synth_8080_lib::{notes::Note, Float};
 
 #[cfg(feature = "bevy")]
 use bevy::prelude::*;
 
 pub type Color = [u8; 3];
-
 pub type MidiNote = u8;
 pub type CmdArg = u32;
 pub type Cmd = char;
 pub type ChannelIndex = u8;
 pub type Bpm = u8;
+pub type Float = f32;
 
 pub const LINE_LEN: usize = 0xFFFF;
 
@@ -207,11 +207,11 @@ pub enum Channel {
     SomeChannels(Vec<ChannelIndex>),
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub enum Wavetable {
-    BuiltIn(OscType),
-    FromFile(PathBuf),
-}
+// #[derive(Serialize, Deserialize, Clone, Debug)]
+// pub enum Wavetable {
+//     BuiltIn(OscType),
+//     FromFile(PathBuf),
+// }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum PlayerCmd {
@@ -227,7 +227,7 @@ pub enum PlayerCmd {
     SetCursor(usize),
     SetTempo(u64),
     SetBeat(u64),
-    SetWavetable((ChannelIndex, Wavetable)),
+    // SetWavetable((ChannelIndex, Wavetable)),
 }
 
 #[cfg_attr(feature = "bevy", derive(Resource))]

@@ -14,6 +14,8 @@ HIGHLIGHT_BORDERS = 20  # 30
 
 pygame.init()
 pygame.joystick.init()
+controller_found = False
+joy = None
 screen = pygame.display.set_mode(SCREEN_SIZE)
 pygame.font.init()
 fonts = [pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 45),
@@ -41,7 +43,7 @@ def fps():
         fps, True, color)
     textRect = display.get_rect()
 
-    x, y = SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2
+    x, y = round(SCREEN_WIDTH / 2), round(SCREEN_HEIGHT / 2)
 
     textRect.center = (x, y)
     clear_screen()
@@ -72,82 +74,110 @@ clear_screen()
 tracker_ipc = run_tracker(SCREEN_WIDTH, SCREEN_HEIGHT, THIS_DIR)
 
 
-while not done:
+def check_controller_input(event):
+    if event.type == pygame.JOYHATMOTION and event.value == (0, 1):
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
+    elif event.type == pygame.JOYHATMOTION and event.value == (0, -1):
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Down))
+    elif event.type == pygame.JOYHATMOTION and event.value == (-1, 0):
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Left))
+    elif event.type == pygame.JOYHATMOTION and event.value == (1, 0):
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Right))
+    elif event.type == pygame.JOYBUTTONUP and event.button == 1:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.A))
+    elif event.type == pygame.JOYBUTTONUP and event.button == 0:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.B))
+    elif event.type == pygame.JOYBUTTONUP and event.button == 3:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.X))
+    elif event.type == pygame.JOYBUTTONUP and event.button == 4:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Y))
+    elif event.type == pygame.JOYBUTTONUP and event.button == 7:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Start))
+    elif event.type == pygame.JOYBUTTONDOWN and event.button == 6:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Select))
+    # # elif event.type == pygame.JOYBUTTONUP and event.button == 6:
+    # #     # print("RM")
+    # #     app.resources[ResourceID.KEY_SCAN] = [
+    # #         button for button in app.resources[ResourceID.KEY_SCAN] if button != Buttons.SELECT]
+    elif event.type == pygame.JOYBUTTONUP and event.button == 4:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.LBump))
+    elif event.type == pygame.JOYBUTTONUP and event.button == 4:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.RBump))
+    elif event.type == pygame.JOYAXISMOTION and event.axis == 4 and event.value < 0.5:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.LTrig))
+    elif event.type == pygame.JOYAXISMOTION and event.axis == 5 and event.value < 0.5:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.RTrig))
+
+
+def check_keeb_input(event):
+    if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
+    elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Down))
+    elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Left))
+    elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.Right))
+    elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.A))
+    elif event.type == pygame.KEYDOWN and event.key == pygame.K_z:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.B))
+    elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.LBump))
+    elif event.type == pygame.KEYDOWN and event.key == pygame.K_e:
+        tracker_ipc.send(InputCMD.ButtonPress(Button.RBump))
+
+
+def handle_pygame_events():
+    global joy
+    global controller_found
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            # print("QUIT")
+            # from time import sleep
+            tracker_ipc.send(InputCMD.Exit())
+            # sleep(1)
             pygame.quit()
             quit()
-            done = True
-            tracker_ipc.send(InputCMD.Exit())
+            return True
         elif event.type == pygame.JOYDEVICEADDED:
             joy = pygame.joystick.Joystick(event.device_index)
-        elif event.type == pygame.JOYHATMOTION and event.value == (0, 1):
-            tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
-        elif event.type == pygame.JOYHATMOTION and event.value == (0, -1):
-            tracker_ipc.send(InputCMD.ButtonPress(Button.Down))
-        elif event.type == pygame.JOYHATMOTION and event.value == (-1, 0):
-            tracker_ipc.send(InputCMD.ButtonPress(Button.Left))
-        elif event.type == pygame.JOYHATMOTION and event.value == (1, 0):
-            tracker_ipc.send(InputCMD.ButtonPress(Button.Right))
-        elif event.type == pygame.JOYBUTTONUP and event.button == 1:
-            tracker_ipc.send(InputCMD.ButtonPress(Button.A))
-        # elif event.type == pygame.JOYBUTTONUP and event.button == 0:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.B)
-        # elif event.type == pygame.JOYBUTTONUP and event.button == 3:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.X)
-        # elif event.type == pygame.JOYBUTTONUP and event.button == 4:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.Y)
-        # elif event.type == pygame.JOYBUTTONUP and event.button == 7:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.START)
-        # elif event.type == pygame.JOYBUTTONDOWN and event.button == 6:
-        #     # print("SELECT")
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.SELECT)
-        # elif event.type == pygame.JOYBUTTONUP and event.button == 6:
-        #     # print("RM")
-        #     app.resources[ResourceID.KEY_SCAN] = [
-        #         button for button in app.resources[ResourceID.KEY_SCAN] if button != Buttons.SELECT]
-        # elif event.type == pygame.JOYBUTTONUP and event.button == 4:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.L_BUMP)
-        # elif event.type == pygame.JOYBUTTONUP and event.button == 4:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.R_BUMP)
-        # elif event.type == pygame.JOYAXISMOTION and event.axis == 4 and event.value < 0.5:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.L_TRIG)
-        # elif event.type == pygame.JOYAXISMOTION and event.axis == 5 and event.value < 0.5:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.R_TRIG)
+            controller_found = True
 
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-            # print("keyboard UP")
-            tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
-        elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-            tracker_ipc.send(InputCMD.ButtonPress(Button.Down))
-        #     # print("DOWN")
-        # elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.LEFT)
-        # elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.RIGHT)
-        # # elif event.type == pygame.KEYDOWN and event.value == (1, 0):
-        # #     app.resources[ResourceID.KEY_SCAN].append(Buttons.RIGHT)
-        # elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.A)
-        # elif event.type == pygame.KEYDOWN and event.key == pygame.K_z:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.B)
+        if controller_found:
+            check_controller_input(event)
+        else:
+            check_keeb_input(event)
 
-        # while True:
+    return False
+
+
+def proccess_cmd():
     cmds = tracker_ipc.recv_all()
 
     for cmd in cmds:
         if isinstance(cmd, RenderCMD.Text):
-            # print("Text")
             draw_text(cmd)
         elif isinstance(cmd, RenderCMD.Line):
-            print("Line")
+            print("drawing Lines not yet implemented")
         elif isinstance(cmd, RenderCMD.Rect):
-            print("Rect")
+            print("drawing Rects not yet implemented")
         elif isinstance(cmd, RenderCMD.Circle):
             print("Circle")
+            print("drawing Circles not yet implemented")
         elif isinstance(cmd, RenderCMD.Clear):
-            print("Clear")
+            print("Clear recvieved, clearing screen.")
             clear_screen()
 
+
+def loop_clean_up():
     pygame.display.update()
     clock.tick()
+
+
+while not handle_pygame_events():
+    proccess_cmd()
+    loop_clean_up()
+
+print("DONE")
