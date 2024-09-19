@@ -35,11 +35,11 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          # before-script-linux: "apt-get update; apt-get install -y libudev-dev"
+          before-script-linux: "sudo apt-get update; sudo apt-get install -y libudev-dev"
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
-          manylinux: auto
+          manylinux: off
           container: off
       - name: Upload wheels
         uses: actions/upload-artifact@v3
