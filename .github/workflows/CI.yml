@@ -54,7 +54,7 @@ jobs:
           export PKG_CONFIG_LIBDIR=/usr/lib/:/usr/share/;
           export PKG_CONFIG_DIR=;
           export PKG_CONFIG_SYSROOT_DIR=\"/\";
-          tree /usr/share/
+          ls -d /usr/lib/*/
           "
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
