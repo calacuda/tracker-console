@@ -11,7 +11,7 @@ on:
       - main
       - master
     tags:
-      - 'v*'
+      - '**'
   pull_request:
   workflow_dispatch:
 
@@ -35,6 +35,7 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
+          before-script-linux: "apt-get install libudev-dev"
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
