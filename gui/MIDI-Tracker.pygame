@@ -13,7 +13,7 @@ HIGHLIGHT_BORDERS = 20  # 30
 
 
 pygame.init()
-pygame.joystick.init()
+# pygame.joystick.init()
 controller_found = False
 joy = None
 screen = pygame.display.set_mode(SCREEN_SIZE)
@@ -110,6 +110,8 @@ def check_controller_input(event):
 
 
 def check_keeb_input(event):
+    # print("running in keeb mode")
+
     if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
         tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
     elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
@@ -132,6 +134,9 @@ def handle_pygame_events():
     global joy
     global controller_found
 
+    # if controller_found:
+    # print("controller mode")
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             # print("QUIT")
@@ -139,7 +144,7 @@ def handle_pygame_events():
             tracker_ipc.send(InputCMD.Exit())
             # sleep(1)
             pygame.quit()
-            quit()
+            # quit()
             return True
         elif event.type == pygame.JOYDEVICEADDED:
             joy = pygame.joystick.Joystick(event.device_index)
@@ -181,3 +186,4 @@ while not handle_pygame_events():
     loop_clean_up()
 
 print("DONE")
+quit()

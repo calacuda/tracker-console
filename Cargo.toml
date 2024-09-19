@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # tracker-backend = { version = "0.1.0", path = "tracker-backend" }
-bevy = { version = "0.14.2", default-features = false, features = ["bevy_state", "multi_threaded"] }
+bevy = { version = "0.14.2", default-features = false, features = ["bevy_gilrs", "bevy_state", "multi_threaded"] }
 log = "0.4.22"
 crossbeam = { version = "0.8.4", features = ["crossbeam-channel", "nightly"] }
 tracker-lib = { version = "0.1.0", path = "common-lib", features = ["bevy"] }
