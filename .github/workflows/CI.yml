@@ -35,7 +35,17 @@ jobs:
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
-          before-script-linux: "sudo apt-get update; sudo apt-get install -y libudev-dev libudev; export PKG_CONFIG_ALLOW_CROSS=1; export PKG_CONFIG_LIBDIR=${SYSROOT}/usr/lib/pkgconfig:${SYSROOT}/usr/share/pkgconfig; export PKG_CONFIG_DIR=; export PKG_CONFIG_SYSROOT_DIR=\"/\""
+          before-script-linux: "
+          sudo dpkg --add-architecture aarch64
+          # sudo touch /etc/apt/sources.list.d/arm-cross-compile-sources.list
+          sudo apt-get update;
+          sudo apt-get install -y libudev-dev libudev libdevel;
+          sudo apt-get install -y apt-get install package:aarch64;
+          export PKG_CONFIG_ALLOW_CROSS=1;
+          export PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig:/usr/share/pkgconfig;
+          export PKG_CONFIG_DIR=;
+          export PKG_CONFIG_SYSROOT_DIR=\"/\"
+          "
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
           sccache: 'true'
