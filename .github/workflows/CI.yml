@@ -40,7 +40,7 @@ jobs:
           # sudo touch /etc/apt/sources.list.d/arm-cross-compile-sources.list
           sudo apt-get update;
           sudo apt-get install -y libudev-dev libudev libdevel;
-          sudo apt-get install -y apt-get install package:aarch64;
+          sudo apt-get install -y libudev-dev:aarch64;
           export PKG_CONFIG_ALLOW_CROSS=1;
           export PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig:/usr/share/pkgconfig;
           export PKG_CONFIG_DIR=;
