@@ -1,0 +1,131 @@
+from py_bevy import App, Schedule
+import pygame
+import pyee
+from enum import Enum
+from logging import DEBUG
+
+# TODO: send control data to rust synth over unix socket? or function calls.
+
+
+class TrackerScreens(Enum):
+    SONG = 0
+    CHAIN = 1
+    PHRASE = 2
+    INSTRUMENT = 3
+    TABLE = 4
+
+
+class TrackerStates(Enum):
+    STARTUP = 0
+    RUNNING = 1
+    EXIT = 2
+
+
+app = App(TrackerStates.STARTUP, DEBUG)
+
+
+@app.register(TrackerStates.STARTUP, Schedule.UPDATE)
+def load_settings(app):
+    """loads applicaiton and user settings"""
+    pass
+
+
+@app.register(TrackerStates.STARTUP, Schedule.UPDATE)
+def load_song_data(app):
+    """loads the last song the user worked on into the ECS database"""
+    pass
+
+
+@app.register(TrackerStates.STARTUP, Schedule.UPDATE)
+def init_pygame(app):
+    """
+    runs pygame boiler plate and stores required resources in the ESC database
+    also makes a new window.
+    """
+    pygame.init()
+    screen = pygame.display.set_mode((1280, 720))
+    pygame.font.init()
+
+    font = pygame.font.SysFont('Comic Sans MS', 24)
+
+    screen.fill((255, 255, 255))
+
+    text = font.render("Hello World!", True, (0, 0, 0))
+    textRect = text.get_rect()
+
+    textRect.center = (1280 // 2, 720 // 2)
+
+    # pygame.display.flip()
+    pygame.display.update()
+
+
+@app.register(TrackerStates.STARTUP, Schedule.UPDATE)
+def init_synth(app):
+    """
+    initializes the software || hardware synth. stores the nessesary
+    comunicaiton information in the ECS database
+    """
+    pass
+
+
+@app.register(TrackerStates.STARTUP, Schedule.UPDATE)
+def exit_startup(app):
+    """only run startup code once then move onto into the \"Running\" state."""
+    app.set_next_state(TrackerStates.RUNNING)
+
+
+@app.register(TrackerStates.RUNNING, Schedule.ENTER)
+def setup_project(app):
+    """sets up the interface"""
+    pass
+
+
+# TODO: remove when the applicaiton supports manual user exits
+@app.register(TrackerStates.RUNNING, Schedule.UPDATE)
+def stop_inf_loop(app):
+    """
+    stops the applicaiotn form looping forever. here for debug reasons,
+    REMOVE WHEN THE USER CAN EXIT THE APPLICAIOTNS MANUALLY.
+    """
+    app.exit()
+
+
+if __name__ == "__main__":
+    # app.run()
+    pygame.init()
+    screen = pygame.display.set_mode((1280, 720))
+    pygame.font.init()
+
+    font = pygame.font.SysFont('Anonymous Pro', 60)
+
+    screen.fill((255, 255, 255))
+
+    text = font.render("Hello World!", True, (255, 255, 255))
+    textRect = text.get_rect()
+
+    textRect.center = (1280 // 2, 720 // 2)
+
+    # pygame.display.flip()
+    pygame.display.update()
+
+    while True:
+        screen.fill((0, 0, 0))
+        screen.blit(text, textRect)
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+
+            # if event object type is QUIT
+            # then quitting the pygame
+            # and program both.
+            if event.type == pygame.QUIT:
+
+                # deactivates the pygame library
+                pygame.quit()
+
+                # quit the program.
+                quit()
+
+            # Draws the surface object to the screen.
+            pygame.display.update()
