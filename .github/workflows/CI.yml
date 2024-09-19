@@ -36,14 +36,14 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           before-script-linux: "
-          sudo dpkg --add-architecture arm64
+          sudo dpkg --add-architecture arm64;
           sudo apt-get update;
           sudo apt-get install -y libudev-dev libudev libdevel;
           sudo apt-get install -y libudev-dev:arm64;
           export PKG_CONFIG_ALLOW_CROSS=1;
           export PKG_CONFIG_LIBDIR=/usr/lib/pkgconfig:/usr/share/pkgconfig;
           export PKG_CONFIG_DIR=;
-          export PKG_CONFIG_SYSROOT_DIR=\"/\"
+          export PKG_CONFIG_SYSROOT_DIR=\"/\";
           "
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
