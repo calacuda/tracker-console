@@ -97,13 +97,39 @@ fn gamepad_input(
         button_type: GamepadButtonType::DPadRight,
     };
 
-    if buttons.just_pressed(b_button) || keys.just_pressed(KeyCode::KeyZ) {
+    // if buttons.just_pressed(b_button) || keys.just_pressed(KeyCode::KeyZ) {
+    if buttons.just_pressed(b_button) {
         // button just pressed: make the player jump
-        println!("KeyZ");
+        println!("B Button pressed");
     }
 
-    if buttons.just_pressed(a_button) || keys.just_pressed(KeyCode::KeyX) {
+    // if buttons.just_pressed(a_button) || keys.just_pressed(KeyCode::KeyX) {
+    if buttons.just_pressed(a_button) {
         // button being held down: heal the player
-        println!("KeyX");
+        println!("A Button pressed");
+    }
+
+    if buttons.just_pressed(x_button) {
+        println!("X Button pressed");
+    }
+
+    if buttons.just_pressed(y_button) {
+        println!("Y Button pressed");
+    }
+
+    if buttons.just_pressed(up_button) {
+        println!("UP Button pressed");
+    }
+
+    if buttons.just_pressed(down_button) {
+        println!("DOWN Button pressed");
+    }
+
+    if buttons.just_pressed(left_button) {
+        println!("LEFT Button pressed");
+    }
+
+    if buttons.just_pressed(right_button) {
+        println!("RIGHT Button pressed");
     }
 }

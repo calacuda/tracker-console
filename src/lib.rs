@@ -132,10 +132,10 @@ fn start(io: RustIPC, screen_w: f32, screen_h: f32, asset_dir: PathBuf) {
                 .disable::<AccessibilityPlugin>()
                 .set(LogPlugin {
                     // filter: "info,wgpu_core=warn,wgpu_hal=warn,mygame=debug".into(),
-                    #[cfg(debug_assertions)]
+                    // #[cfg(debug_assertions)]
                     level: bevy::log::Level::DEBUG,
-                    #[cfg(not(debug_assertions))]
-                    level: bevy::log::Level::INFO,
+                    // #[cfg(not(debug_assertions))]
+                    // level: bevy::log::Level::INFO,
                     ..Default::default()
                 }),
         )
