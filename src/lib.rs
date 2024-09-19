@@ -1,4 +1,4 @@
-use bevy::{a11y::AccessibilityPlugin, prelude::*};
+use bevy::{a11y::AccessibilityPlugin, log::LogPlugin, prelude::*};
 use controls::ControlsPlugin;
 use ipc::{gen_ipc, RustIPC, TrackerIPC};
 // use loging::logger_init;
@@ -86,7 +86,12 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
                             InputCMD::ButtonRelease(button) => ctrl.release(button),
                         }
                     }
+
+                    // println!("controller found, msg processed")
                 }
+                // else {
+                //     println!("no controller input resource found");
+                // }
             }
 
             app.update();
@@ -124,7 +129,12 @@ fn start(io: RustIPC, screen_w: f32, screen_h: f32, asset_dir: PathBuf) {
                 .build()
                 .disable::<WindowPlugin>()
                 .disable::<FrameCountPlugin>()
-                .disable::<AccessibilityPlugin>(),
+                .disable::<AccessibilityPlugin>()
+                .set(LogPlugin {
+                    // filter: "info,wgpu_core=warn,wgpu_hal=warn,mygame=debug".into(),
+                    level: bevy::log::Level::DEBUG,
+                    ..Default::default()
+                }),
         )
         .add_plugins(ControlsPlugin)
         .add_plugins(base_disaply::BaseDisplayPlugin)

@@ -7,6 +7,8 @@ pub struct ControlsPlugin;
 
 impl Plugin for ControlsPlugin {
     fn build(&self, app: &mut App) {
+        debug!("tracker_backend::controls::ControlsPlugin loaded");
+
         app.add_systems(Update, gamepad_connections)
             .add_systems(Update, gamepad_input);
     }
@@ -52,34 +54,14 @@ fn gamepad_connections(
 }
 
 fn gamepad_input(
-    // axes: Res<Axis<GamepadAxis>>,
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
+    keys: Res<ButtonInput<KeyCode>>,
 ) {
     let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
         // no gamepad is connected
         return;
     };
-
-    // // The joysticks are represented using a separate axis for X and Y
-    // let axis_lx = GamepadAxis {
-    //     gamepad,
-    //     axis_type: GamepadAxisType::LeftStickX,
-    // };
-    // let axis_ly = GamepadAxis {
-    //     gamepad,
-    //     axis_type: GamepadAxisType::LeftStickY,
-    // };
-    //
-    // if let (Some(x), Some(y)) = (axes.get(axis_lx), axes.get(axis_ly)) {
-    //     // combine X and Y into one vector
-    //     let left_stick = Vec2::new(x, y);
-    //
-    //     // Example: check if the stick is pushed up
-    //     if left_stick.length() > 0.9 && left_stick.y > 0.5 {
-    //         // do something
-    //     }
-    // }
 
     // In a real game, the buttons would be configurable, but here we hardcode them
     let b_button = GamepadButton {
@@ -115,11 +97,13 @@ fn gamepad_input(
         button_type: GamepadButtonType::DPadRight,
     };
 
-    if buttons.just_pressed(b_button) {
+    if buttons.just_pressed(b_button) || keys.just_pressed(KeyCode::KeyZ) {
         // button just pressed: make the player jump
+        println!("KeyZ");
     }
 
-    if buttons.pressed(a_button) {
+    if buttons.just_pressed(a_button) || keys.just_pressed(KeyCode::KeyX) {
         // button being held down: heal the player
+        println!("KeyX");
     }
 }

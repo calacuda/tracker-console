@@ -116,9 +116,10 @@ while not done:
         #     app.resources[ResourceID.KEY_SCAN].append(Buttons.R_TRIG)
 
         elif event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
+            # print("keyboard UP")
             tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
-        # elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-        #     app.resources[ResourceID.KEY_SCAN].append(Buttons.DOWN)
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
+            tracker_ipc.send(InputCMD.ButtonPress(Button.Down))
         #     # print("DOWN")
         # elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
         #     app.resources[ResourceID.KEY_SCAN].append(Buttons.LEFT)

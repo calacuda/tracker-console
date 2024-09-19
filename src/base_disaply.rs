@@ -14,6 +14,8 @@ struct MenuMemo {
 
 impl Plugin for BaseDisplayPlugin {
     fn build(&self, app: &mut App) {
+        debug!("BaseDisplayPlugin loaded");
+
         app.insert_resource(MenuMemo::default())
             .add_systems(Update, right_hand_menu);
     }
