@@ -1,8 +1,8 @@
-use crate::{ipc::RustIPC, ScreenSize};
+use crate::{ipc::RustIPC, pygame_coms::RenderCMD, ScreenSize};
 use bevy::prelude::*;
-use log::info;
+use log::{debug, info};
 use std::ops::{Deref, DerefMut};
-use tracker_lib::{Bpm, TrackerConfig, TrackerState};
+use tracker_lib::{Bpm, MidiNote, TrackerConfig, TrackerState, N_CHANNELS};
 
 pub struct BaseDisplayPlugin;
 
@@ -10,6 +10,7 @@ pub struct BaseDisplayPlugin;
 struct MenuMemo {
     // tempo_h: f64,
     tempo_bpm: Bpm,
+    notes: [Option<MidiNote>; N_CHANNELS],
 }
 
 impl Plugin for BaseDisplayPlugin {
@@ -36,8 +37,62 @@ fn right_hand_menu(
 
     if memo.deref().tempo_bpm != state.tempo {
         info!("rendering tempo");
-        tempo_bar(menu_left_most, screen_size, state.tempo, io, &config);
+        tempo_bar(menu_left_most, screen_size, state.tempo, &io, &config);
         memo.deref_mut().tempo_bpm = state.tempo;
+    }
+
+    for i in 0..N_CHANNELS {
+        let playing = state.deref().get_playing(i);
+
+        if memo.deref().notes[i] != playing {
+            debug!("rendering not echange on channel {i}");
+            note_display(menu_left_most, screen_size, playing, i, &io, &config);
+            memo.deref_mut().notes[i] = playing;
+        }
+    }
+}
+
+fn note_display(
+    left_most: f32,
+    screen_size: Vec2,
+    playing: Option<MidiNote>,
+    i: usize,
+    io: &Res<RustIPC>,
+    config: &TrackerConfig,
+) {
+    let menu_width = (screen_size.x - left_most) as f64;
+    let display_width = menu_width / (N_CHANNELS as f64);
+    let middle_y = ((config.ui.menu.tempo * screen_size.y as f64)
+        + (config.ui.menu.note_display * screen_size.y as f64))
+        / 2.0;
+
+    let ancor = [
+        display_width * i as f64 + (display_width / 2.0) + left_most as f64,
+        middle_y,
+    ];
+
+    let box_cmd = RenderCMD::Rect {
+        ancor,
+        fill_color: config.colors.back_ground,
+        center: true,
+    };
+
+    if let Err(e) = io.deref().send_msg(box_cmd) {
+        error!("could not send note background box render command to python {e}");
+    }
+
+    if let Some(note) = playing {
+        let text_cmd = RenderCMD::Text {
+            ancor,
+            color: config.colors.text,
+            text: format!("{note}"),
+            font_size: config.font.size[0],
+            center: true,
+        };
+
+        if let Err(e) = io.deref().send_msg(text_cmd) {
+            error!("could not send note text render command to python {e}");
+        }
     }
 }
 
@@ -45,14 +100,14 @@ fn tempo_bar(
     left_most: f32,
     screen_size: Vec2,
     tempo: u8,
-    io: Res<RustIPC>,
+    io: &Res<RustIPC>,
     config: &TrackerConfig,
 ) {
     let msg = format!("Tempo: {tempo: >3} BPM");
 
     let color = config.colors.text;
 
-    let cmd = crate::pygame_coms::RenderCMD::Text {
+    let cmd = RenderCMD::Text {
         ancor: [
             (left_most + screen_size.x) as f64 / 2.0,
             (config.ui.menu.tempo * screen_size.y as f64) / 2.0,

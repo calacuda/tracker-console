@@ -16,19 +16,20 @@ pub type Bpm = u8;
 pub type Float = f32;
 
 pub const LINE_LEN: usize = 0xFFFF;
+pub const N_CHANNELS: usize = 5;
 
 #[cfg_attr(feature = "bevy", derive(Resource))]
 #[derive(Serialize, Deserialize, Clone, Debug, Copy, Eq, Hash, PartialEq)]
 pub enum MidiNoteCmd {
-    PlayNote(MidiNote),
-    StopNote(MidiNote),
+    PlayNote,
+    StopNote,
     HoldNote,
 }
 
 #[cfg_attr(feature = "bevy", derive(Resource))]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Copy, Eq, Hash, PartialEq)]
 pub struct RowData {
-    pub note: Option<MidiNoteCmd>,
+    pub note: Option<(MidiNoteCmd, MidiNote)>,
     pub cmds: [Option<(Cmd, Option<CmdArg>)>; 3],
 }
 
@@ -38,6 +39,7 @@ pub struct TrackerState {
     pub sequences: Vec<Vec<RowData>>,
     pub display_start: usize,
     pub tempo: Bpm,
+    pub play_head: Vec<usize>,
 }
 
 impl Default for TrackerState {
@@ -60,6 +62,7 @@ impl Default for TrackerState {
             .collect(),
             display_start: 0,
             tempo: 160,
+            play_head: [0; N_CHANNELS].into_iter().collect(),
         }
     }
 }
@@ -77,72 +80,72 @@ impl TrackerState {
         Ok(channel)
     }
 
-    pub fn add_note(
-        &mut self,
-        note: Option<MidiNoteCmd>,
-        channel: ChannelIndex,
-        row: usize,
-        // note_num: usize,
-    ) -> Result<()> {
-        // ensure!(note_num < 4, "lines can only have 4 notes per line");
-
-        let channel = self.channel_len_check(channel)?;
-
-        if self.sequences[channel].len() <= row {
-            for sequence in self.sequences.iter_mut() {
-                for _ in 0..row - sequence.len() {
-                    sequence.push(RowData::default());
-                }
-            }
-        }
-
-        self.sequences[channel][row].note = note;
-
-        Ok(())
-    }
-
-    pub fn rm_note(&mut self, channel: ChannelIndex, row: usize) -> Result<()> {
-        // ensure!(note_num < 4, "lines can only have 4 notes per line");
-
-        let channel = self.channel_len_check(channel)?;
-
-        if self.sequences[channel].len() <= row {
-            for sequence in self.sequences.iter_mut() {
-                for _ in 0..row - sequence.len() {
-                    sequence.push(RowData::default());
-                }
-            }
-        }
-
-        // self.sequences[channel][i].notes[note_num]
-        let mut i = row;
-
-        while Some(MidiNoteCmd::HoldNote) == self.sequences[channel][i].note || i == row {
-            self.sequences[channel][i].note = None;
-
-            i += 1;
-        }
-
-        self.sequences[channel][i].note = None;
-
-        if row > 0 {
-            let mut i = row - 1;
-
-            while Some(MidiNoteCmd::HoldNote) == self.sequences[channel][i].note || i == row - 1 {
-                self.sequences[channel][i].note = None;
-
-                if i == 0 {
-                    break;
-                }
-
-                i -= 1;
-            }
-
-            self.sequences[channel][i].note = None;
-        }
-
-        Ok(())
-    }
+    // pub fn add_note(
+    //     &mut self,
+    //     note: MidiNot>,
+    //     channel: ChannelIndex,
+    //     row: usize,
+    //     // note_num: usize,
+    // ) -> Result<()> {
+    //     // ensure!(note_num < 4, "lines can only have 4 notes per line");
+    //
+    //     let channel = self.channel_len_check(channel)?;
+    //
+    //     if self.sequences[channel].len() <= row {
+    //         for sequence in self.sequences.iter_mut() {
+    //             for _ in 0..row - sequence.len() {
+    //                 sequence.push(RowData::default());
+    //             }
+    //         }
+    //     }
+    //
+    //     self.sequences[channel][row].note = note;
+    //
+    //     Ok(())
+    // }
+    //
+    // pub fn rm_note(&mut self, channel: ChannelIndex, row: usize) -> Result<()> {
+    //     // ensure!(note_num < 4, "lines can only have 4 notes per line");
+    //
+    //     let channel = self.channel_len_check(channel)?;
+    //
+    //     if self.sequences[channel].len() <= row {
+    //         for sequence in self.sequences.iter_mut() {
+    //             for _ in 0..row - sequence.len() {
+    //                 sequence.push(RowData::default());
+    //             }
+    //         }
+    //     }
+    //
+    //     // self.sequences[channel][i].notes[note_num]
+    //     let mut i = row;
+    //
+    //     while Some(MidiNoteCmd::HoldNote) == self.sequences[channel][i].note || i == row {
+    //         self.sequences[channel][i].note = None;
+    //
+    //         i += 1;
+    //     }
+    //
+    //     self.sequences[channel][i].note = None;
+    //
+    //     if row > 0 {
+    //         let mut i = row - 1;
+    //
+    //         while Some(MidiNoteCmd::HoldNote) == self.sequences[channel][i].note || i == row - 1 {
+    //             self.sequences[channel][i].note = None;
+    //
+    //             if i == 0 {
+    //                 break;
+    //             }
+    //
+    //             i -= 1;
+    //         }
+    //
+    //         self.sequences[channel][i].note = None;
+    //     }
+    //
+    //     Ok(())
+    // }
 
     pub fn empty() -> Self {
         // let def: Vec<RowData> = vec![RowData::default()];
@@ -163,6 +166,13 @@ impl TrackerState {
         Self::default()
     }
 
+    pub fn get_playing(&self, sequence: usize) -> Option<MidiNote> {
+        // self.sequences[sequence][self.play_head[sequence]]
+        //     .note
+        //     .map(|(_, note)| note)
+        Some((sequence & 256).try_into().unwrap())
+    }
+
     pub fn copy_from_row(&self, row: usize, n_rows: usize) -> Self {
         Self {
             display_start: self.display_start,
@@ -173,6 +183,7 @@ impl TrackerState {
                 self.sequences[3][row..row + n_rows].to_vec(),
             ],
             tempo: self.tempo,
+            play_head: self.play_head.clone(),
         }
     }
 }

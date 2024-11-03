@@ -139,7 +139,7 @@ def handle_pygame_events():
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            # print("QUIT")
+            print("QUIT")
             # from time import sleep
             tracker_ipc.send(InputCMD.Exit())
             # sleep(1)
@@ -150,9 +150,7 @@ def handle_pygame_events():
             joy = pygame.joystick.Joystick(event.device_index)
             controller_found = True
 
-        if controller_found:
-            check_controller_input(event)
-        else:
+        if not controller_found:
             check_keeb_input(event)
 
     return False
