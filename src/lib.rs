@@ -7,7 +7,7 @@ use pyo3::prelude::*;
 use std::{path::PathBuf, thread::spawn, time::Instant};
 use tracker_lib::{TrackerConfig, TrackerState};
 
-pub mod base_disaply;
+pub mod base_display;
 pub mod ipc;
 // pub mod loging;
 pub mod controls;
@@ -141,7 +141,7 @@ fn start(io: RustIPC, screen_w: f32, screen_h: f32, asset_dir: PathBuf) {
                 }),
         )
         .add_plugins(ControlsPlugin)
-        .add_plugins(base_disaply::BaseDisplayPlugin)
+        .add_plugins(base_display::BaseDisplayPlugin)
         .set_runner(build_runner(io))
         .run();
 
