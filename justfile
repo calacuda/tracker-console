@@ -21,6 +21,7 @@ ssh:
 
 new-window NAME CMD:
   tmux new-w -t midi-tracker -n "{{NAME}}"
+  tmux send-keys -t midi-tracker:"{{NAME}}" ". ./.venv/bin/activate" ENTER
   tmux send-keys -t midi-tracker:"{{NAME}}" "{{CMD}}" ENTER
 
 tmux:
