@@ -19,3 +19,15 @@ build:
 ssh:
   ssh root@192.168.1.55
 
+new-window NAME CMD:
+  tmux new-w -t midi-tracker -n "{{NAME}}"
+  tmux send-keys -t midi-tracker:"{{NAME}}" "{{CMD}}" ENTER
+
+tmux:
+  tmux new -ds midi-tracker -n "README"
+  tmux send-keys -t midi-tracker:README 'nv ./README.md "+set wrap"' ENTER
+  @just new-window "Edit" ""
+  @just new-window "Run" ""
+  @just new-window "git" "git status"
+  tmux a -t midi-tracker
+
