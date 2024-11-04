@@ -167,10 +167,10 @@ impl TrackerState {
     }
 
     pub fn get_playing(&self, sequence: usize) -> Option<MidiNote> {
-        // self.sequences[sequence][self.play_head[sequence]]
-        //     .note
-        //     .map(|(_, note)| note)
-        Some((sequence & 256).try_into().unwrap())
+        self.sequences[sequence][self.play_head[sequence]]
+            .note
+            .map(|(_, note)| note)
+        // Some((sequence & 256).try_into().unwrap())
     }
 
     pub fn copy_from_row(&self, row: usize, n_rows: usize) -> Self {
@@ -282,8 +282,9 @@ pub struct MenuUiConf {
     pub width: f64,
     pub tempo: f64,
     pub note_display: f64,
-    pub eq: f64,
+    // pub eq: f64,
     pub osciloscope: f64,
+    pub menu_map: f64,
 }
 
 pub fn get_cmd_arg_val(arg: CmdArg) -> usize {

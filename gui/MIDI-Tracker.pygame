@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import pygame
+from pygame.rect import Rect
 from tracker_backend import InputCMD, RenderCMD, Button, run as run_tracker
 from pathlib import Path
 
@@ -25,7 +26,7 @@ done = False
 
 
 def clear_screen():
-    screen.fill((0, 0, 0))
+    screen.fill((30, 30, 46))
 
 
 def fps():
@@ -67,6 +68,32 @@ def draw_text(text):
         textRect.left = x
 
     screen.blit(display, textRect)
+
+
+def draw_rect(rect_cmd):
+    # arg = text.text
+    # font = fonts[0]
+    color = rect_cmd.fill_color
+    # display = font.render(
+    #     arg, True, color)
+    # textRect = display.get_rect()
+
+    # x, y = text.ancor
+
+    # textRect.center = (x, y)
+    (left, top) = rect_cmd.ancor
+    (width, height) = rect_cmd.size
+
+    rect = Rect((top, left), (width, height))
+
+    if rect_cmd.center:
+        rect.center = (left, top)
+
+    # print(f"drawing rect => Rect(({top}, {left}), ({width}, {height}))")
+
+    pygame.draw.rect(screen, color, rect)
+
+    # screen.blit(display, textRect)
 
 
 clear_screen()
@@ -165,7 +192,8 @@ def proccess_cmd():
         elif isinstance(cmd, RenderCMD.Line):
             print("drawing Lines not yet implemented")
         elif isinstance(cmd, RenderCMD.Rect):
-            print("drawing Rects not yet implemented")
+            # print("drawing Rects not yet implemented")
+            draw_rect(cmd)
         elif isinstance(cmd, RenderCMD.Circle):
             print("Circle")
             print("drawing Circles not yet implemented")

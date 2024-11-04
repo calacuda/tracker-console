@@ -57,10 +57,14 @@ impl ControllerInput {
 fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
     let runner = move |mut app: App| -> AppExit {
         let mut config = TrackerConfig::default();
-        config.colors.text = [10, 100, 20];
+        // config.colors.text = [10, 100, 20];
+        config.colors.text = [166, 227, 161];
+        config.colors.back_ground = [30, 30, 46];
         config.ui.menu.tempo = 1.0 / 6.0;
-        config.ui.menu.note_display = 3.0 / 6.0;
+        config.ui.menu.note_display = 2.0 / 6.0;
         config.font.size = vec![30].into();
+        config.ui.menu.osciloscope = 4.0 / 6.0;
+        config.ui.menu.menu_map = 1.0;
 
         app.insert_resource(ControllerInput::new());
         app.insert_resource(io.clone());

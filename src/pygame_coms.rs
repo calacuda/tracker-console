@@ -2,6 +2,7 @@ use bevy::prelude::Component;
 use pyo3::pyclass;
 
 pub type Point = [f64; 2];
+pub type RectSize = [f64; 2];
 pub type Color = [u8; 3];
 
 #[pyclass(module = "tracker_backend", get_all)]
@@ -24,6 +25,7 @@ pub enum RenderCMD {
     },
     Rect {
         ancor: Point,
+        size: RectSize,
         fill_color: Color,
         /// if false the ancor is the top left
         center: bool,

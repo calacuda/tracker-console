@@ -27,6 +27,7 @@ new-window NAME CMD:
 tmux:
   tmux new -ds midi-tracker -n "README"
   tmux send-keys -t midi-tracker:README 'nv ./README.md "+set wrap"' ENTER
+  @just new-window "GUI" "nv ./gui/MIDI-Tracker.pygame +'setfiletype python'"
   @just new-window "Edit" ""
   @just new-window "Run" ""
   @just new-window "git" "git status"

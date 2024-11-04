@@ -45,7 +45,7 @@ fn right_hand_menu(
         let playing = state.deref().get_playing(i);
 
         if memo.deref().notes[i] != playing {
-            debug!("rendering not echange on channel {i}");
+            debug!("rendering note echange on channel {i}");
             note_display(menu_left_most, screen_size, playing, i, &io, &config);
             memo.deref_mut().notes[i] = playing;
         }
@@ -65,15 +65,26 @@ fn note_display(
     let middle_y = ((config.ui.menu.tempo * screen_size.y as f64)
         + (config.ui.menu.note_display * screen_size.y as f64))
         / 2.0;
+    let middle_x = display_width * i as f64 + (display_width / 2.0) + left_most as f64;
 
     let ancor = [
-        display_width * i as f64 + (display_width / 2.0) + left_most as f64,
-        middle_y,
+        // display_width * i as f64 + (display_width / 2.0) + left_most as f64,
+        middle_x, middle_y,
+    ];
+
+    let size = [
+        // width
+        display_width,
+        // height
+        (config.ui.menu.note_display * screen_size.y as f64)
+            - (config.ui.menu.tempo * screen_size.y as f64),
     ];
 
     let box_cmd = RenderCMD::Rect {
         ancor,
-        fill_color: config.colors.back_ground,
+        size,
+        // fill_color: config.colors.back_ground,
+        fill_color: [0, 255 - (255 as f32 / i as f32) as u8, 0],
         center: true,
     };
 
