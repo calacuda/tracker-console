@@ -80,7 +80,7 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
 
                         match msg {
                             InputCMD::Exit() => {
-                                info!("exiting form runner loop becuase of PyGame Exit.");
+                                info!("exiting from runner loop becuase of PyGame Exit.");
                                 return AppExit::Success;
                             }
                             InputCMD::ButtonPress(button) => ctrl.press(button),
@@ -106,7 +106,7 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
             }
 
             if let Some(exit) = app.should_exit() {
-                info!("exiting form runner loop becuase of in program shutdown.");
+                info!("exiting from runner loop becuase of a program shutdown.");
                 return exit;
             }
         }
