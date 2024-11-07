@@ -27,7 +27,8 @@ screen = pygame.display.set_mode(SCREEN_SIZE)
 pygame.font.init()
 fonts = [pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 45),
          pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 30),
-         pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 20)]
+         pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 20),
+         pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 18)]
 clock = pygame.time.Clock()
 done = False
 log = get_logger("MIDI-Tracker", DEBUG)
@@ -62,12 +63,13 @@ class PygameState:
 
         middle_y = (top + SCREEN_HEIGHT) * 0.5
         color = self.config.colors.text
-        width = SCREEN_WIDTH - left_most
+        width = SCREEN_WIDTH - left_most - left_most * 0.025
+        offset = ((SCREEN_WIDTH - left_most) / 5.0) / 2.0
         note_width = width / 5.0
 
         for i, text in enumerate((prev, "<=", this, "=>", next)):
-            middle_x = (left_most + (note_width * 0.5) + (note_width * i))
-            display = self.fonts[2].render(
+            middle_x = (left_most + offset + (note_width * i))
+            display = self.fonts[3].render(
                 text, True, color)
             textRect = display.get_rect()
 

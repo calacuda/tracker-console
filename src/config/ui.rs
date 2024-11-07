@@ -73,7 +73,7 @@ pub fn get_config() -> TrackerConfig {
     config.font.size = vec![30];
     config.ui.menu.osciloscope = 4.0 / 6.0;
     config.ui.menu.menu_map = 1.0;
-    config.ui.menu.width = 1.0 / 3.25;
+    config.ui.menu.width = 1.0 / 3.125;
     config.ui.tab.width = 2.0 / 3.0;
     config.ui.tab.height = 1.0;
     config.ui.tab.row_elm_width = 1.0 / 5.0;
