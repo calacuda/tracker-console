@@ -45,11 +45,25 @@ fn right_hand_menu(
         let playing = state.deref().get_playing(i);
 
         if memo.deref().notes[i] != playing {
-            debug!("rendering note echange on channel {i}");
+            debug!("rendering note change on channel {i}");
             note_display(menu_left_most, screen_size, playing, i, &io, &config);
             memo.deref_mut().notes[i] = playing;
         }
     }
+
+    osciloscope(menu_left_most, screen_size, &io, &config);
+}
+
+fn osciloscope(left_most: f32, screen_size: Vec2, io: &Res<RustIPC>, config: &TrackerConfig) {
+    let menu_width = (screen_size.x - left_most) as f64;
+    let display_width = menu_width / (N_CHANNELS as f64);
+    let middle_y = ((config.ui.menu.note_display * screen_size.y as f64)
+        + (config.ui.menu.osciloscope * screen_size.y as f64))
+        / 2.0;
+
+    // TODO: get samples
+    // TODO: make lines
+    // TODO: send lines
 }
 
 fn note_display(

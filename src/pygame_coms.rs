@@ -11,7 +11,12 @@ pub enum RenderCMD {
     Line {
         from: Point,
         to: Point,
-        fill_color: Color,
+        color: Color,
+        width: u8,
+    },
+    Lines {
+        path: Vec<Point>,
+        color: Color,
         width: u8,
     },
     Text {

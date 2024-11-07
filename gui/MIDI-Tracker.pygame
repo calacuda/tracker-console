@@ -191,6 +191,8 @@ def proccess_cmd():
             draw_text(cmd)
         elif isinstance(cmd, RenderCMD.Line):
             print("drawing Lines not yet implemented")
+        elif isinstance(cmd, RenderCMD.Lines):
+            print("drawing bendy Lines not yet implemented")
         elif isinstance(cmd, RenderCMD.Rect):
             # print("drawing Rects not yet implemented")
             draw_rect(cmd)

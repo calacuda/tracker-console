@@ -16,6 +16,9 @@ build:
   # PKG_CONFIG_SYSROOT_DIR=/opt/ArchARM maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
   PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/ maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
 
+build-nmap:
+  PKG_CONFIG_SYSROOT_DIR="./cross-build-deps/" PKG_CONFIG_PATH="./cross-build-deps/usr/lib/pkgconfig" aarch64-linux-gnu-gcc -Os -I ./cross-build-deps/usr/include/python3.12 -o nmap nmap.c -L./cross-build-deps/usr/lib/ -lpython3.12 -L/usr/aarch64-linux-gnu/lib/ -lpthread -L/usr/aarch64-linux-gnu/lib/ -lm -L/usr/aarch64-linux-gnu/lib/ -lutil -L/usr/aarch64-linux-gnu/lib/ -ldl --sysroot=./cross-build-deps/
+
 ssh:
   ssh root@192.168.1.55
 

@@ -72,3 +72,4 @@ docs/_build/
 .python-version/target
 Cargo.lock
 pygame-version
+cross-build-deps
