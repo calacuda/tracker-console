@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use crate::{
     ipc::RustIPC,
     pygame_coms::{
@@ -7,8 +5,7 @@ use crate::{
         ScreenData, Song, State,
     },
 };
-use bevy::prelude::*;
-use log::{debug, info};
+use bevy::{log::*, prelude::*};
 use tracker_lib::Tempo;
 
 pub struct TrackerStatePlugin;

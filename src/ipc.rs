@@ -1,8 +1,7 @@
 use crate::pygame_coms::{InputCMD, State};
 use anyhow::Result;
-use bevy::{log::info, prelude::Resource};
+use bevy::{log::*, prelude::Resource};
 use crossbeam::channel::{unbounded, Receiver, Sender};
-use log::*;
 use pyo3::prelude::*;
 
 #[pyclass(module = "tracker_backend")]
