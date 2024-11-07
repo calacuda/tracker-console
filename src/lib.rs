@@ -1,4 +1,6 @@
+use crate::config::ui::{get_config, TrackerConfig};
 use bevy::{a11y::AccessibilityPlugin, log::LogPlugin, prelude::*};
+use config::ui::{ColorsConfig, FontConfig, MenuUiConf, TabUiConf, UiConfig};
 use controls::ControlsPlugin;
 use ipc::{gen_ipc, RustIPC, TrackerIPC};
 use pygame_coms::{
@@ -7,7 +9,6 @@ use pygame_coms::{
 };
 use pyo3::prelude::*;
 use std::{thread::spawn, time::Instant};
-use tracker_lib::TrackerConfig;
 use tracker_state::TrackerStatePlugin;
 
 pub mod config;
@@ -116,21 +117,6 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
     runner
 }
 
-#[pyfunction]
-fn get_ui_config() -> TrackerConfig {
-    let mut config = TrackerConfig::default();
-    // config.colors.text = [10, 100, 20];
-    config.colors.text = [166, 227, 161];
-    config.colors.back_ground = [30, 30, 46];
-    config.ui.menu.tempo = 1.0 / 6.0;
-    config.ui.menu.note_display = 2.0 / 6.0;
-    config.font.size = vec![30].into();
-    config.ui.menu.osciloscope = 4.0 / 6.0;
-    config.ui.menu.menu_map = 1.0;
-
-    config
-}
-
 fn start(io: RustIPC) {
     info!("start");
 
@@ -173,7 +159,7 @@ fn run() -> PyResult<TrackerIPC> {
 #[pymodule]
 fn tracker_backend(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(run, m)?)?;
-    m.add_function(wrap_pyfunction!(get_ui_config, m)?)?;
+    m.add_function(wrap_pyfunction!(get_config, m)?)?;
 
     m.add_class::<TrackerCommand>()?;
     m.add_class::<Button>()?;
@@ -189,6 +175,18 @@ fn tracker_backend(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PlaybackCursor>()?;
     m.add_class::<State>()?;
     m.add_class::<ScreenData>()?;
+    m.add_class::<TrackerConfig>()?;
+    m.add_class::<FontConfig>()?;
+    m.add_class::<ColorsConfig>()?;
+    m.add_class::<UiConfig>()?;
+    m.add_class::<MenuUiConf>()?;
+    m.add_class::<TabUiConf>()?;
+    // m.add_class::<>()?;
+    // m.add_class::<>()?;
+    // m.add_class::<>()?;
+    // m.add_class::<>()?;
+    // m.add_class::<>()?;
+    // m.add_class::<>()?;
 
     Ok(())
 }

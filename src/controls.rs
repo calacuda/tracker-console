@@ -56,7 +56,7 @@ fn gamepad_connections(
 fn gamepad_input(
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
-    keys: Res<ButtonInput<KeyCode>>,
+    // keys: Res<ButtonInput<KeyCode>>,
 ) {
     let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
         // no gamepad is connected

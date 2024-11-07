@@ -1,4 +1,5 @@
 use crate::{
+    config::ui::Bpm,
     ipc::RustIPC,
     pygame_coms::{
         Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper, Screen,
@@ -6,7 +7,6 @@ use crate::{
     },
 };
 use bevy::{log::*, prelude::*};
-use tracker_lib::Tempo;
 
 pub struct TrackerStatePlugin;
 
@@ -29,6 +29,9 @@ impl Plugin for TrackerStatePlugin {
             .add_systems(Update, send_state.run_if(run_if_state_updated));
     }
 }
+
+#[derive(Clone, Debug, Copy, Eq, Hash, PartialEq, PartialOrd, Ord, Resource)]
+pub struct Tempo(pub Bpm);
 
 #[derive(Debug, Resource)]
 pub struct AllPhrases(pub Phrases);
@@ -98,13 +101,16 @@ fn send_state(
 
     let playing = match playing.0.lock().unwrap().clone() {
         PlaybackCursor::NotPlaying() => [None, None, None, None],
-        PlaybackCursor::NotFull { from_screen, row } => [None, None, None, None],
+        PlaybackCursor::NotFull {
+            from_screen: _,
+            row: _,
+        } => [None, None, None, None],
         PlaybackCursor::FullSong {
-            lead_1,
-            lead_2,
-            bass,
-            perc,
-            row,
+            lead_1: _,
+            lead_2: _,
+            bass: _,
+            perc: _,
+            row: _,
         } => {
             // TODO: do the thing
             [None, None, None, None]

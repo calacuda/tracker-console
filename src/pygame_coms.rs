@@ -1,8 +1,7 @@
-use std::sync::{Arc, Mutex};
-
+use crate::config::ui::Bpm;
 use bevy::prelude::{Component, Resource};
 use pyo3::pyclass;
-use tracker_lib::Bpm;
+use std::sync::{Arc, Mutex};
 
 #[pyclass(module = "tracker_backend", eq, eq_int)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Component)]
