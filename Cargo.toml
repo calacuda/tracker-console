@@ -15,5 +15,5 @@ log = "0.4.22"
 crossbeam = { version = "0.8.4", features = ["crossbeam-channel", "nightly"] }
 tracker-lib = { version = "0.1.0", path = "common-lib", features = ["bevy"] }
 fern = { version = "0.6.2", features = ["colored"] }
-pyo3 = "0.22.3"
-anyhow = { version = "1.0.89", features = ["backtrace"] }
+pyo3 = "0.22.6"
+anyhow = { version = "1.0.93", features = ["backtrace"] }

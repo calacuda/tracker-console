@@ -173,7 +173,7 @@ def handle_pygame_events():
             # sleep(1)
             pygame.quit()
             # quit()
-            return True
+            return False
         elif event.type == pygame.JOYDEVICEADDED:
             joy = pygame.joystick.Joystick(event.device_index)
             controller_found = True
@@ -181,7 +181,7 @@ def handle_pygame_events():
         if not controller_found:
             check_keeb_input(event)
 
-    return False
+    return True
 
 
 # def proccess_cmd():
@@ -205,10 +205,10 @@ def handle_pygame_events():
 #             clear_screen()
 
 def proccess_state_change():
-    state = tracker_ipc.recv()
+    state = tracker_ipc.recv_all()
 
     if state:
-        print(f"got new state =>  {state}")
+        print("got new state")
         clear_screen()
         # TODO: display state on screen
 
@@ -235,7 +235,7 @@ def loop_clean_up():
     clock.tick()
 
 
-while not handle_pygame_events():
+while handle_pygame_events():
     # proccess_cmd()
     proccess_state_change()
     loop_clean_up()

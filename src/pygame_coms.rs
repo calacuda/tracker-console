@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use bevy::prelude::{Component, Resource};
 use pyo3::pyclass;
 use tracker_lib::Bpm;
@@ -69,7 +71,7 @@ pub struct PhraseRow {
 #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub struct Phrase {
-    pub rows: [Option<PhraseRow>; 16],
+    pub rows: [PhraseRow; 16],
     pub name: Index,
 }
 
@@ -83,26 +85,35 @@ pub struct ChainRow {
 #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
 pub struct Chain {
-    pub rows: [Option<ChainRow>; 16],
+    pub rows: [ChainRow; 16],
     pub name: Index,
 }
 
 #[pyclass(module = "tracker_backend", get_all)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Default)]
 pub struct SongRow {
-    pub lead_1: Index,
-    pub lead_2: Index,
-    pub bass: Index,
-    pub perc: Index,
+    pub lead_1: Option<Index>,
+    pub lead_2: Option<Index>,
+    pub bass: Option<Index>,
+    pub perc: Option<Index>,
 }
 
 /// the whole song
 #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Resource)]
 pub struct Song {
-    pub rows: [Option<SongRow>; 16],
+    pub rows: [SongRow; 16],
     // pub name: Index,
     pub default_instrument: [Index; 4],
+}
+
+impl Default for Song {
+    fn default() -> Self {
+        Self {
+            rows: [SongRow::default(); 16],
+            default_instrument: [0, 0, 1, 2],
+        }
+    }
 }
 
 #[pyclass(module = "tracker_backend", get_all)]
@@ -117,7 +128,7 @@ pub enum Screen {
 }
 
 #[pyclass(module = "tracker_backend", get_all)]
-#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd, Resource)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd)]
 pub enum PlaybackCursor {
     /// playback of the full song
     FullSong {
@@ -138,6 +149,15 @@ pub enum PlaybackCursor {
     NotPlaying(),
 }
 
+impl Default for PlaybackCursor {
+    fn default() -> Self {
+        Self::NotPlaying()
+    }
+}
+
+#[derive(Debug, Clone, Resource, Default)]
+pub struct PlaybackCursorWrapper(pub Arc<Mutex<PlaybackCursor>>);
+
 #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Debug, Clone, PartialEq, PartialOrd, Default, Resource)]
 pub struct DisplayCursor {
@@ -146,16 +166,29 @@ pub struct DisplayCursor {
 }
 
 #[pyclass(module = "tracker_backend", get_all)]
+#[derive(Debug, Clone, PartialEq, PartialOrd, Resource)]
+pub enum ScreenData {
+    Song(Song),
+    Chain(Chain),
+    Phrase(Phrase),
+    Instrument(Instrument),
+    PlaySynth(),
+    Settings(),
+}
+
+#[pyclass(module = "tracker_backend", get_all)]
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct State {
     pub song: Song,
-    /// the screen curently being displayed to the user
-    pub screen: Screen,
-    pub phrases: Phrases,
-    pub chains: Chains,
-    pub instruments: Instruments,
-    /// set to none when not playing, set to some value when playing.
-    pub playing: PlaybackCursor,
+    // /// the screen curently being displayed to the user
+    // pub screen: Screen,
+    // pub phrases: Phrases,
+    // pub chains: Chains,
+    // pub instruments: Instruments,
+    // /// set to none when not playing, set to some value when playing.
+    // pub playing: PlaybackCursor,
+    pub screen: ScreenData,
+    pub playing: [Option<Note>; 4],
     pub tempo: Bpm,
     pub display_cursor: DisplayCursor,
 }

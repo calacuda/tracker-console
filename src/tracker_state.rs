@@ -1,6 +1,11 @@
+use std::ops::Deref;
+
 use crate::{
     ipc::RustIPC,
-    pygame_coms::{Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, Screen},
+    pygame_coms::{
+        Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper, Screen,
+        ScreenData, Song, State,
+    },
 };
 use bevy::prelude::*;
 use log::{debug, info};
@@ -21,9 +26,10 @@ impl Plugin for TrackerStatePlugin {
             .insert_resource(AllInstruments::default())
             .insert_resource(AllPhrases::default())
             .insert_resource(AllChains::default())
-            .insert_resource(PlaybackCursor::NotPlaying())
+            .insert_resource(PlaybackCursorWrapper::default())
             .insert_resource(DisplayCursor::default())
-            .add_systems(Update, send_state);
+            .insert_resource(Song::default())
+            .add_systems(Update, send_state.run_if(run_if_state_updated));
     }
 }
 
@@ -59,12 +65,75 @@ impl Default for AllInstruments {
     }
 }
 
-fn send_state(coms: ResMut<RustIPC>, mut updated: ResMut<StateUpdated>) {
-    if updated.0 {
-        // TODO: build a state struct
-        info!("sending state to frontend");
-        // TODO: send the state struct
+fn send_state(
+    coms: ResMut<RustIPC>,
+    mut updated: ResMut<StateUpdated>,
+    tempo: Res<Tempo>,
+    screen: Res<Screen>,
+    instruments: Res<AllInstruments>,
+    phrases: Res<AllPhrases>,
+    chains: Res<AllChains>,
+    playing: Res<PlaybackCursorWrapper>,
+    display_cursor: Res<DisplayCursor>,
+    song: Res<Song>,
+    // playing: Res<PlaybackCursor>,
+) {
+    // if updated.0 {
+    // build a state struct
+    // let state = State {
+    //     chains: chains.0.clone(),
+    //     phrases: phrases.0.clone(),
+    //     instruments: instruments.0.clone(),
+    //     display_cursor: display_cursor.clone(),
+    //     screen: screen.clone(),
+    //     tempo: tempo.0,
+    //     song: song.clone(),
+    //     playing: playing.0.lock().unwrap().clone(),
+    // };
+    let screen = match *screen {
+        Screen::Song() => ScreenData::Song(song.clone()),
+        Screen::Settings() => ScreenData::Settings(),
+        Screen::EditChain(i) => ScreenData::Chain(chains.0[i].unwrap()),
+        Screen::EditPhrase(i) => ScreenData::Phrase(phrases.0[i].unwrap()),
+        Screen::Instrument(i) => ScreenData::Instrument(instruments.0[i].clone()),
+        Screen::PlaySynth() => ScreenData::PlaySynth(),
+    };
 
+    let playing = match playing.0.lock().unwrap().clone() {
+        PlaybackCursor::NotPlaying() => [None, None, None, None],
+        PlaybackCursor::NotFull { from_screen, row } => [None, None, None, None],
+        PlaybackCursor::FullSong {
+            lead_1,
+            lead_2,
+            bass,
+            perc,
+            row,
+        } => {
+            // TODO: do the thing
+            [None, None, None, None]
+        }
+    };
+
+    let state = State {
+        display_cursor: display_cursor.clone(),
+        screen,
+        tempo: tempo.0,
+        song: song.clone(),
+        playing,
+    };
+
+    info!("sending state to frontend");
+    // send the state struct
+    if let Err(e) = coms.send_msg(state) {
+        error!("sending updated state failed with error: {e}");
+    } else {
         updated.0 = false;
     }
+
+    info!("sending complete");
+    // }
+}
+
+fn run_if_state_updated(updated: Res<StateUpdated>) -> bool {
+    updated.0
 }

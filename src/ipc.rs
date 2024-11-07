@@ -64,8 +64,8 @@ impl RustIPC {
         self.rx.try_recv().map_or(None, |inbox_elm| Some(inbox_elm))
     }
 
-    pub fn send_msg(&self, render_cmd: State) -> Result<()> {
-        Ok(self.tx.send(render_cmd)?)
+    pub fn send_msg(&self, state: State) -> Result<()> {
+        Ok(self.tx.send(state)?)
     }
 }
 
