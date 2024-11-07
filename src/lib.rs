@@ -1,23 +1,18 @@
 use bevy::{a11y::AccessibilityPlugin, log::LogPlugin, prelude::*};
 use controls::ControlsPlugin;
 use ipc::{gen_ipc, RustIPC, TrackerIPC};
-// use loging::logger_init;
-use pygame_coms::{Button, InputCMD, RenderCMD};
+use pygame_coms::{
+    Button, Chain, ChainRow, InputCMD, Instrument, Phrase, PhraseRow, PlaybackCursor, Screen, Song,
+    SongRow, State, TrackerCommand,
+};
 use pyo3::prelude::*;
-use std::{path::PathBuf, thread::spawn, time::Instant};
-use tracker_lib::{TrackerConfig, TrackerState};
+use std::{thread::spawn, time::Instant};
+use tracker_state::TrackerStatePlugin;
 
-pub mod base_display;
-pub mod ipc;
-// pub mod loging;
 pub mod controls;
+pub mod ipc;
 pub mod pygame_coms;
-
-#[derive(Clone, Copy, PartialEq, Debug, Resource)]
-pub struct ScreenSize(Vec2);
-
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Resource)]
-pub struct AssetDir(PathBuf);
+pub mod tracker_state;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Resource, Component)]
 pub struct ControllerInput {
@@ -56,19 +51,19 @@ impl ControllerInput {
 
 fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
     let runner = move |mut app: App| -> AppExit {
-        let mut config = TrackerConfig::default();
-        // config.colors.text = [10, 100, 20];
-        config.colors.text = [166, 227, 161];
-        config.colors.back_ground = [30, 30, 46];
-        config.ui.menu.tempo = 1.0 / 6.0;
-        config.ui.menu.note_display = 2.0 / 6.0;
-        config.font.size = vec![30].into();
-        config.ui.menu.osciloscope = 4.0 / 6.0;
-        config.ui.menu.menu_map = 1.0;
+        // let mut config = TrackerConfig::default();
+        // // config.colors.text = [10, 100, 20];
+        // config.colors.text = [166, 227, 161];
+        // config.colors.back_ground = [30, 30, 46];
+        // config.ui.menu.tempo = 1.0 / 6.0;
+        // config.ui.menu.note_display = 2.0 / 6.0;
+        // config.font.size = vec![30].into();
+        // config.ui.menu.osciloscope = 4.0 / 6.0;
+        // config.ui.menu.menu_map = 1.0;
 
         app.insert_resource(ControllerInput::new());
         app.insert_resource(io.clone());
-        app.insert_resource(config);
+        // app.insert_resource(config);
         app.finish();
         app.cleanup();
 
@@ -119,16 +114,11 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
     runner
 }
 
-fn start(io: RustIPC, screen_w: f32, screen_h: f32, asset_dir: PathBuf) {
+fn start(io: RustIPC) {
     info!("start");
 
     App::new()
-        .insert_resource(TrackerState::default())
-        .insert_resource(ScreenSize(Vec2 {
-            x: screen_w,
-            y: screen_h,
-        }))
-        .insert_resource(AssetDir(asset_dir))
+        // .insert_resource(TrackerState::default())
         .add_plugins(
             DefaultPlugins
                 .build()
@@ -145,7 +135,8 @@ fn start(io: RustIPC, screen_w: f32, screen_h: f32, asset_dir: PathBuf) {
                 }),
         )
         .add_plugins(ControlsPlugin)
-        .add_plugins(base_display::BaseDisplayPlugin)
+        // .add_plugins(base_display::BaseDisplayPlugin)
+        .add_plugins(TrackerStatePlugin)
         .set_runner(build_runner(io))
         .run();
 
@@ -153,28 +144,32 @@ fn start(io: RustIPC, screen_w: f32, screen_h: f32, asset_dir: PathBuf) {
 }
 
 #[pyfunction]
-fn run(screen_w: f32, screen_h: f32, asset_dir: PathBuf) -> PyResult<TrackerIPC> {
+fn new_song() -> PyResult<TrackerIPC> {
     let (rust_input, python_input) = gen_ipc();
 
-    spawn(move || start(rust_input, screen_w, screen_h, asset_dir));
+    spawn(move || start(rust_input));
 
     Ok(python_input)
 }
 
-// /// Formats the sum of two numbers as string.
-// #[pyfunction]
-// fn sum_as_string(a: usize, b: usize) -> PyResult<String> {
-//     Ok((a + b).to_string())
-// }
-
 /// A Python module implemented in Rust.
 #[pymodule]
 fn tracker_backend(m: &Bound<'_, PyModule>) -> PyResult<()> {
-    // m.add_function(wrap_pyfunction!(sum_as_string, m)?)?;
-    m.add_function(wrap_pyfunction!(run, m)?)?;
-    // m.add_class::<TrackerIPC>()?;
+    m.add_function(wrap_pyfunction!(new_song, m)?)?;
+
+    m.add_class::<TrackerCommand>()?;
     m.add_class::<Button>()?;
     m.add_class::<InputCMD>()?;
-    m.add_class::<RenderCMD>()?;
+    m.add_class::<Instrument>()?;
+    m.add_class::<PhraseRow>()?;
+    m.add_class::<Phrase>()?;
+    m.add_class::<ChainRow>()?;
+    m.add_class::<Chain>()?;
+    m.add_class::<SongRow>()?;
+    m.add_class::<Song>()?;
+    m.add_class::<Screen>()?;
+    m.add_class::<PlaybackCursor>()?;
+    m.add_class::<State>()?;
+
     Ok(())
 }

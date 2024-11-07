@@ -1,4 +1,4 @@
-use crate::pygame_coms::{InputCMD, RenderCMD};
+use crate::pygame_coms::{InputCMD, State};
 use anyhow::Result;
 use bevy::{log::info, prelude::Resource};
 use crossbeam::channel::{unbounded, Receiver, Sender};
@@ -8,14 +8,14 @@ use pyo3::prelude::*;
 #[pyclass(module = "tracker_backend")]
 #[derive(Debug, Clone)]
 pub struct TrackerIPC {
-    pub rx: Receiver<RenderCMD>,
+    pub rx: Receiver<State>,
     pub tx: Sender<InputCMD>,
 }
 
 #[derive(Debug, Clone, Resource)]
 pub struct RustIPC {
     pub rx: Receiver<InputCMD>,
-    pub tx: Sender<RenderCMD>,
+    pub tx: Sender<State>,
 }
 
 // #[derive(Debug, Clone)]
@@ -26,7 +26,7 @@ pub struct RustIPC {
 
 #[pymethods]
 impl TrackerIPC {
-    fn recv(&self) -> Option<RenderCMD> {
+    fn recv(&self) -> Option<State> {
         match self.rx.try_recv() {
             Ok(cmd) => Some(cmd),
             Err(_e) => {
@@ -36,7 +36,7 @@ impl TrackerIPC {
         }
     }
 
-    fn recv_all(&self) -> Vec<RenderCMD> {
+    fn recv_all(&self) -> Vec<State> {
         let mut v = Vec::with_capacity(self.rx.len());
 
         while let Some(cmd) = self.recv() {
@@ -64,7 +64,7 @@ impl RustIPC {
         self.rx.try_recv().map_or(None, |inbox_elm| Some(inbox_elm))
     }
 
-    pub fn send_msg(&self, render_cmd: RenderCMD) -> Result<()> {
+    pub fn send_msg(&self, render_cmd: State) -> Result<()> {
         Ok(self.tx.send(render_cmd)?)
     }
 }

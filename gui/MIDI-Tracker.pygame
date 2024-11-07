@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import pygame
 from pygame.rect import Rect
-from tracker_backend import InputCMD, RenderCMD, Button, run as run_tracker
+from tracker_backend import InputCMD, Button, new_song as run_tracker
 from pathlib import Path
 
 
@@ -98,7 +98,8 @@ def draw_rect(rect_cmd):
 
 clear_screen()
 
-tracker_ipc = run_tracker(SCREEN_WIDTH, SCREEN_HEIGHT, THIS_DIR)
+# tracker_ipc = run_tracker(SCREEN_WIDTH, SCREEN_HEIGHT, THIS_DIR)
+tracker_ipc = run_tracker()
 
 
 def check_controller_input(event):
@@ -183,25 +184,50 @@ def handle_pygame_events():
     return False
 
 
-def proccess_cmd():
-    cmds = tracker_ipc.recv_all()
+# def proccess_cmd():
+#     cmds = tracker_ipc.recv_all()
+#
+#     for cmd in cmds:
+#         if isinstance(cmd, RenderCMD.Text):
+#             draw_text(cmd)
+#         elif isinstance(cmd, RenderCMD.Line):
+#             print("drawing Lines not yet implemented")
+#         elif isinstance(cmd, RenderCMD.Lines):
+#             print("drawing bendy Lines not yet implemented")
+#         elif isinstance(cmd, RenderCMD.Rect):
+#             # print("drawing Rects not yet implemented")
+#             draw_rect(cmd)
+#         elif isinstance(cmd, RenderCMD.Circle):
+#             print("Circle")
+#             print("drawing Circles not yet implemented")
+#         elif isinstance(cmd, RenderCMD.Clear):
+#             print("Clear recvieved, clearing screen.")
+#             clear_screen()
 
-    for cmd in cmds:
-        if isinstance(cmd, RenderCMD.Text):
-            draw_text(cmd)
-        elif isinstance(cmd, RenderCMD.Line):
-            print("drawing Lines not yet implemented")
-        elif isinstance(cmd, RenderCMD.Lines):
-            print("drawing bendy Lines not yet implemented")
-        elif isinstance(cmd, RenderCMD.Rect):
-            # print("drawing Rects not yet implemented")
-            draw_rect(cmd)
-        elif isinstance(cmd, RenderCMD.Circle):
-            print("Circle")
-            print("drawing Circles not yet implemented")
-        elif isinstance(cmd, RenderCMD.Clear):
-            print("Clear recvieved, clearing screen.")
-            clear_screen()
+def proccess_state_change():
+    state = tracker_ipc.recv()
+
+    if state:
+        print(f"got new state =>  {state}")
+        clear_screen()
+        # TODO: display state on screen
+
+#     for cmd in cmds:
+#         if isinstance(cmd, RenderCMD.Text):
+#             draw_text(cmd)
+#         elif isinstance(cmd, RenderCMD.Line):
+#             print("drawing Lines not yet implemented")
+#         elif isinstance(cmd, RenderCMD.Lines):
+#             print("drawing bendy Lines not yet implemented")
+#         elif isinstance(cmd, RenderCMD.Rect):
+#             # print("drawing Rects not yet implemented")
+#             draw_rect(cmd)
+#         elif isinstance(cmd, RenderCMD.Circle):
+#             print("Circle")
+#             print("drawing Circles not yet implemented")
+#         elif isinstance(cmd, RenderCMD.Clear):
+#             print("Clear recvieved, clearing screen.")
+#             clear_screen()
 
 
 def loop_clean_up():
@@ -210,7 +236,8 @@ def loop_clean_up():
 
 
 while not handle_pygame_events():
-    proccess_cmd()
+    # proccess_cmd()
+    proccess_state_change()
     loop_clean_up()
 
 print("DONE")

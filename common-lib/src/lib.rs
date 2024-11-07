@@ -19,6 +19,10 @@ pub const LINE_LEN: usize = 0xFFFF;
 pub const N_CHANNELS: usize = 5;
 
 #[cfg_attr(feature = "bevy", derive(Resource))]
+#[derive(Serialize, Deserialize, Clone, Debug, Copy, Eq, Hash, PartialEq, PartialOrd, Ord)]
+pub struct Tempo(pub Bpm);
+
+#[cfg_attr(feature = "bevy", derive(Resource))]
 #[derive(Serialize, Deserialize, Clone, Debug, Copy, Eq, Hash, PartialEq)]
 pub enum MidiNoteCmd {
     PlayNote,
