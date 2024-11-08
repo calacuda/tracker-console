@@ -11,6 +11,24 @@ use pyo3::prelude::*;
 use std::{thread::spawn, time::Instant};
 use tracker_state::TrackerStatePlugin;
 
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ScreenState {
+    #[default]
+    EditSong,
+    EditChain,
+    EditPhrase,
+    EditInsts,
+    PlaySynth,
+    Settings,
+}
+
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PlayingState {
+    Playing,
+    #[default]
+    NotPlaying,
+}
+
 pub mod config;
 pub mod controls;
 pub mod ipc;
@@ -140,6 +158,9 @@ fn start(io: RustIPC) {
         .add_plugins(ControlsPlugin)
         // .add_plugins(base_display::BaseDisplayPlugin)
         .add_plugins(TrackerStatePlugin)
+        // .insert_state(ScreenData::Song)
+        .init_state::<ScreenState>()
+        .init_state::<PlayingState>()
         .set_runner(build_runner(io))
         .run();
 

@@ -24,7 +24,7 @@ class ChainsTab:
         middle_x = right_most * 0.5
         middle_y = height * 0.5
         color = self.pg_state.config.colors.text
-        n = self.state.screen.screen._0.name
+        n = self.state.screen._0.name
 
         display = self.pg_state.fonts[0].render(
             f"Chain {n}", True, color)

@@ -2,9 +2,10 @@ use crate::{
     config::ui::Bpm,
     ipc::RustIPC,
     pygame_coms::{
-        Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper, Screen,
-        ScreenData, Song, State,
+        Chain, Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper,
+        Screen, ScreenData, Song, State,
     },
+    ScreenState,
 };
 use bevy::{log::*, prelude::*};
 
@@ -26,7 +27,13 @@ impl Plugin for TrackerStatePlugin {
             .insert_resource(PlaybackCursorWrapper::default())
             .insert_resource(DisplayCursor::default())
             .insert_resource(Song::default())
-            .add_systems(Update, send_state.run_if(run_if_state_updated));
+            // .add_systems(Update, send_state.run_if(run_if_state_updated));
+            .add_systems(OnEnter(ScreenState::EditSong), send_state)
+            .add_systems(OnEnter(ScreenState::EditChain), send_state)
+            .add_systems(OnEnter(ScreenState::EditPhrase), send_state)
+            .add_systems(OnEnter(ScreenState::EditInsts), send_state)
+            .add_systems(OnEnter(ScreenState::PlaySynth), send_state)
+            .add_systems(OnEnter(ScreenState::Settings), send_state);
     }
 }
 
@@ -47,7 +54,10 @@ pub struct AllChains(pub Chains);
 
 impl Default for AllChains {
     fn default() -> Self {
-        Self([None; 256])
+        let mut s = Self([None; 256]);
+        s.0[0] = Some(Chain::default());
+
+        s
     }
 }
 
@@ -78,24 +88,12 @@ fn send_state(
     song: Res<Song>,
     // playing: Res<PlaybackCursor>,
 ) {
-    // if updated.0 {
-    // build a state struct
-    // let state = State {
-    //     chains: chains.0.clone(),
-    //     phrases: phrases.0.clone(),
-    //     instruments: instruments.0.clone(),
-    //     display_cursor: display_cursor.clone(),
-    //     screen: screen.clone(),
-    //     tempo: tempo.0,
-    //     song: song.clone(),
-    //     playing: playing.0.lock().unwrap().clone(),
-    // };
     let screen = match *screen {
         Screen::Song() => ScreenData::Song(song.clone()),
         Screen::Settings() => ScreenData::Settings(),
         Screen::EditChain(i) => ScreenData::Chain(chains.0[i].unwrap()),
         Screen::EditPhrase(i) => ScreenData::Phrase(phrases.0[i].unwrap()),
-        Screen::Instrument(i) => ScreenData::Instrument(instruments.0[i].clone()),
+        Screen::Instrument(i) => ScreenData::Instrument(instruments.0[i].clone().unwrap()),
         Screen::PlaySynth() => ScreenData::PlaySynth(),
     };
 
@@ -134,9 +132,8 @@ fn send_state(
     }
 
     info!("sending complete");
-    // }
 }
 
-fn run_if_state_updated(updated: Res<StateUpdated>) -> bool {
-    updated.0
-}
+// fn run_if_state_updated(updated: Res<StateUpdated>) -> bool {
+//     updated.0
+// }

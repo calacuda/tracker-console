@@ -1,7 +1,10 @@
 use crate::config::ui::Bpm;
-use bevy::prelude::{Component, Resource};
+use bevy::prelude::{Component, Resource, States};
 use pyo3::pyclass;
-use std::sync::{Arc, Mutex};
+use std::{
+    ops::Index as IndexInto,
+    sync::{Arc, Mutex},
+};
 
 #[pyclass(module = "tracker_backend", eq, eq_int)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Component)]
@@ -39,7 +42,7 @@ pub type Phrases = [Option<Phrase>; 256];
 /// a collection of all the known chains.
 pub type Chains = [Option<Chain>; 256];
 /// a collection of all the known instruments.
-pub type Instruments = Vec<Instrument>;
+pub type Instruments = Vec<Option<Instrument>>;
 /// an index into a list of all known type T
 pub type Index = usize;
 
@@ -66,6 +69,18 @@ pub struct PhraseRow {
     pub command: Option<TrackerCommand>,
 }
 
+impl IndexInto<Index> for PhraseRow {
+    type Output = Option<Index>;
+
+    fn index(&self, index: Index) -> &Self::Output {
+        if index == 1 {
+            &self.instrument
+        } else {
+            &None
+        }
+    }
+}
+
 /// a single phrase to be used as a part of chains
 #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
@@ -75,14 +90,33 @@ pub struct Phrase {
 }
 
 #[pyclass(module = "tracker_backend", get_all)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Default)]
 pub struct ChainRow {
     pub phrase: Option<Index>,
 }
 
+impl IndexInto<Index> for ChainRow {
+    type Output = Option<Index>;
+
+    fn index(&self, _index: Index) -> &Self::Output {
+        // if index == 0 {
+        //     &self.lead_1
+        // } else if index == 1 {
+        //     &self.lead_2
+        // } else if index == 2 {
+        //     &self.bass
+        // } else if index == 3 {
+        //     &self.perc
+        // } else {
+        //     &self.perc
+        // }
+        &self.phrase
+    }
+}
+
 /// a chain of phrases strung together to make a song
 #[pyclass(module = "tracker_backend", get_all)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Ord, PartialOrd, Default)]
 pub struct Chain {
     pub rows: [ChainRow; 16],
     pub name: Index,
@@ -95,6 +129,24 @@ pub struct SongRow {
     pub lead_2: Option<Index>,
     pub bass: Option<Index>,
     pub perc: Option<Index>,
+}
+
+impl IndexInto<Index> for SongRow {
+    type Output = Option<Index>;
+
+    fn index(&self, index: Index) -> &Self::Output {
+        if index == 0 {
+            &self.lead_1
+        } else if index == 1 {
+            &self.lead_2
+        } else if index == 2 {
+            &self.bass
+        } else if index == 3 {
+            &self.perc
+        } else {
+            &self.perc
+        }
+    }
 }
 
 /// the whole song

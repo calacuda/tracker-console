@@ -265,7 +265,7 @@ def draw_song(state: State):
 
 
 def draw_chain(state: State):
-    log.debug("drawing Song tab")
+    log.debug("drawing Chain tab")
     tab = ChainsTab(state, PygameState())
     tab.draw()
 
@@ -303,10 +303,10 @@ def proccess_state_change():
         case ScreenData.Instrument(_):
             log.info("Instrument tab state recieved")
             log.error("not yet implemented")
-        case ScreenData.PlaySynth(_):
+        case ScreenData.PlaySynth():
             log.info("Synth tab state recieved")
             log.error("not yet implemented")
-        case ScreenData.Settings(_):
+        case ScreenData.Settings():
             log.info("Settings tab state recieved")
             log.error("not yet implemented")
         case other:
