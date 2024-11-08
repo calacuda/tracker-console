@@ -37,7 +37,7 @@ class SongTab:
         color = self.pg_state.config.colors.text
         middle_y = (height * 3.0) * 0.5
 
-        for i, lable in enumerate(["", "LD-1", "LD-2", "BSS", "PERC"]):
+        for i, lable in enumerate(["", "LD-1", "LD-2", "BASS", "PERC"]):
             middle_x = ((col_width * 0.5) + (col_width * i))
             display = self.pg_state.fonts[1].render(
                 lable, True, color)
