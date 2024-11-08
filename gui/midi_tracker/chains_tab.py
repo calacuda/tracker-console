@@ -1,0 +1,68 @@
+from tracker_backend import ChainRow
+
+
+class ChainsTab:
+    def __init__(self, state, pg_state) -> None:
+        # self.screen = pg_state.screen
+        self.state = state
+        self.log = pg_state.log
+        # self.config = config
+        (self.screen_width, self.screen_height) = pg_state.screen_size
+        self.pg_state = pg_state
+
+    def draw(self):
+        right_most = (self.screen_width * self.pg_state.config.ui.tab.width)
+        height = (self.screen_height * self.pg_state.config.ui.tab.row_height)
+        col_width = right_most * self.pg_state.config.ui.tab.row_elm_width
+
+        self.draw_tab_lable(right_most, height)
+        self.draw_col_lable(height, col_width)
+        # print(dir(self.state.screen._0.rows))
+        self.draw_rows(self.state.screen._0.rows, height, col_width)
+
+    def draw_tab_lable(self, right_most: float, height: float):
+        middle_x = right_most * 0.5
+        middle_y = height * 0.5
+        color = self.pg_state.config.colors.text
+        n = self.state.screen.screen._0.name
+
+        display = self.pg_state.fonts[0].render(
+            f"Chain {n}", True, color)
+        textRect = display.get_rect()
+
+        textRect.center = (middle_x, middle_y)
+
+        self.pg_state.screen.blit(display, textRect)
+
+    def draw_col_lable(self, height: float, col_width: float):
+        color = self.pg_state.config.colors.text
+        middle_y = (height * 3.0) * 0.5
+
+        for i, lable in enumerate(["", "PHRASE"]):
+            middle_x = ((col_width * 0.5) + (col_width * i))
+            display = self.pg_state.fonts[1].render(
+                lable, True, color)
+            textRect = display.get_rect()
+
+            textRect.center = (middle_x, middle_y)
+
+            self.pg_state.screen.blit(display, textRect)
+
+    def draw_rows(self, rows: list[ChainRow], height: float, col_width: float):
+        color = self.pg_state.config.colors.text
+
+        for row_i, row in enumerate(rows):
+            bottom = (height * 3.0) + height * row_i
+            middle_y = bottom - height * 0.5
+
+            for col_i, lable in enumerate([f"{row_i:02X}", row.phrase]):
+                text = lable if lable is not None else "---"
+
+                middle_x = ((col_width * 0.5) + (col_width * col_i))
+                display = self.pg_state.fonts[1].render(
+                    text, True, color)
+                textRect = display.get_rect()
+
+                textRect.center = (middle_x, middle_y)
+
+                self.pg_state.screen.blit(display, textRect)

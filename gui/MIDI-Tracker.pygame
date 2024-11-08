@@ -6,6 +6,7 @@ from pathlib import Path
 from midi_tracker._logging import get_logger
 from midi_tracker.side_bar import SideBar
 from midi_tracker.song_tab import SongTab
+from midi_tracker.chains_tab import ChainsTab
 from logging import DEBUG, INFO
 from dataclasses import dataclass
 
@@ -263,6 +264,12 @@ def draw_song(state: State):
     tab.draw()
 
 
+def draw_chain(state: State):
+    log.debug("drawing Song tab")
+    tab = ChainsTab(state, PygameState())
+    tab.draw()
+
+
 def draw_side(state: State):
     log.debug("drawing side bar")
     side_bar = SideBar(state, PygameState())
@@ -287,7 +294,9 @@ def proccess_state_change():
             draw_side(state)
         case ScreenData.Chain(_):
             log.info("Chain tab state recieved")
-            log.error("not yet implemented")
+            # log.error("not yet implemented")
+            draw_chain(state)
+            draw_side(state)
         case ScreenData.Phrase(_):
             log.info("Phrase tab state recieved")
             log.error("not yet implemented")
