@@ -2,7 +2,7 @@ use crate::config::ui::Bpm;
 use bevy::prelude::{Component, Resource, States};
 use pyo3::pyclass;
 use std::{
-    ops::Index as IndexInto,
+    ops::{Index as IndexInto, IndexMut},
     sync::{Arc, Mutex},
 };
 
@@ -62,7 +62,7 @@ pub struct Instrument {
 }
 
 #[pyclass(module = "tracker_backend", get_all)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
 pub struct PhraseRow {
     pub note: Option<Note>,
     pub instrument: Option<Index>,
@@ -83,7 +83,7 @@ impl IndexInto<Index> for PhraseRow {
 
 /// a single phrase to be used as a part of chains
 #[pyclass(module = "tracker_backend", get_all)]
-#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Default)]
 pub struct Phrase {
     pub rows: [PhraseRow; 16],
     pub name: Index,
@@ -145,6 +145,24 @@ impl IndexInto<Index> for SongRow {
             &self.perc
         } else {
             &self.perc
+        }
+    }
+}
+
+impl IndexMut<Index> for SongRow {
+    // type Output = Option<Index>;
+
+    fn index_mut(&mut self, index: Index) -> &mut Self::Output {
+        if index == 0 {
+            &mut self.lead_1
+        } else if index == 1 {
+            &mut self.lead_2
+        } else if index == 2 {
+            &mut self.bass
+        } else if index == 3 {
+            &mut self.perc
+        } else {
+            &mut self.perc
         }
     }
 }
@@ -214,6 +232,7 @@ pub struct PlaybackCursorWrapper(pub Arc<Mutex<PlaybackCursor>>);
 pub struct DisplayCursor {
     pub row: usize,
     pub col: usize,
+    pub selected: bool,
 }
 
 #[pyclass(module = "tracker_backend", get_all)]

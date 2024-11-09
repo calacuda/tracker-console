@@ -17,17 +17,11 @@ impl Plugin for ControlsPlugin {
         debug!("tracker_backend::controls::ControlsPlugin loaded");
 
         app.insert_resource(LastViewed::default())
+            .insert_resource(LastAdded::default())
             .init_resource::<NextScreen>()
             .add_systems(Update, gamepad_connections)
-            .add_systems(Update, screen_change)
-            .add_systems(Update, gamepad_input);
-        // .add_systems(Update, update_state);
-        // .add_systems(OnExit(ScreenState::EditSong), )
-        // .add_systems(OnExit(ScreenState::EditChain), update_state)
-        // .add_systems(OnExit(ScreenState::EditPhrase), update_state)
-        // .add_systems(OnExit(ScreenState::EditInsts), update_state)
-        // .add_systems(OnExit(ScreenState::PlaySynth), update_state)
-        // .add_systems(OnExit(ScreenState::Settings), update_state);
+            .add_systems(Update, screen_change);
+        // .add_systems(Update, gamepad_input);
     }
 }
 
@@ -38,13 +32,22 @@ pub struct LastViewed {
     pub instrument: Index,
 }
 
+#[derive(Debug, Resource, Default)]
+pub struct LastAdded {
+    pub chain: Index,
+    pub phrase: Index,
+    pub instrument: Index,
+    pub note: Index,
+    pub command: Index,
+}
+
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash, Resource)]
 pub struct NextScreen(Option<ScreenState>);
 
 /// Simple resource to store the ID of the first connected gamepad.
 /// We can use it to know which gamepad to use for player input.
 #[derive(Resource)]
-struct MyGamepad(Gamepad);
+pub struct MyGamepad(pub Gamepad);
 
 fn gamepad_connections(
     mut commands: Commands,
@@ -103,14 +106,16 @@ fn update_state(
         (Screen::Song(), ScreenState::EditChain) => {
             let chain = song.rows[display_cursor.row][display_cursor.col];
 
-            if let Some(chain) = chain {
+            // warn!("{display_cursor:?} => {chain:?}");
+
+            if let Some(chain_i) = chain {
                 // *screen = Screen::EditChain(chain);
-                Some((Screen::EditChain(chain), ScreenState::EditChain))
+                Some((Screen::EditChain(chain_i), ScreenState::EditChain))
             } else if chains.deref().0[last_viewed.chain].is_some() {
                 // *screen = Screen::EditChain(last_viewed.chain);
                 Some((Screen::EditChain(last_viewed.chain), ScreenState::EditChain))
             } else {
-                warn!("not shifting to chain as not chains are available");
+                warn!("not shifting to chain as no chains are available");
                 None
             }
         }
@@ -221,32 +226,16 @@ fn update_state(
         | (Screen::PlaySynth(), ScreenState::PlaySynth)
         | (Screen::Settings(), ScreenState::Settings) => None,
         (from, to) => {
-            error!(
-                "transisioning from tab: {from:?} to tab: {to:?}, is illegal but happening anyway"
-            );
+            error!("transisioning from tab: {from:?} to tab: {to:?}, is illegal");
             None
         }
     }
-
-    //     screen_will_be.0 = None;
-    //     next_screen.set(n_s);
-    // } else {
-    //     error!("next state is not pending but the state is changing.");
-    // }
 }
-
-// fn screen_chanded(next_screen: Res<NextState<ScreenState>>) -> bool {
-//     // match next_screen.clone() {
-//     //     NextState::Pending(_) => true,
-//     //     NextState::Unchanged => false,
-//     // }
-//     next_screen.
-// }
 
 fn screen_change(
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
-    mut state: ResMut<State<ScreenState>>,
+    state: ResMut<State<ScreenState>>,
     mut next_screen: ResMut<NextState<ScreenState>>,
     mut screen_res: ResMut<Screen>,
     instruments: Res<AllInstruments>,
@@ -254,7 +243,8 @@ fn screen_change(
     chains: Res<AllChains>,
     song: Res<Song>,
     display_cursor: Res<DisplayCursor>,
-    mut last_viewed: ResMut<LastViewed>,
+    last_viewed: ResMut<LastViewed>,
+    gamepads: Res<Gamepads>,
 ) {
     let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
         // no gamepad is connected
@@ -269,9 +259,27 @@ fn screen_change(
         gamepad,
         button_type: GamepadButtonType::DPadRight,
     };
-    let select_button = GamepadButton {
+    let a_button = GamepadButton {
         gamepad,
-        button_type: GamepadButtonType::Select,
+        button_type: GamepadButtonType::East,
+    };
+
+    // if let Some(gp) = gamepads.name(gamepad) {
+    //     warn!("game pad name = {gp}");
+    // }
+
+    let start_button = if let Some(name) = gamepads.name(gamepad)
+        && name.starts_with("PS5")
+    {
+        GamepadButton {
+            gamepad,
+            button_type: GamepadButtonType::Start,
+        }
+    } else {
+        GamepadButton {
+            gamepad,
+            button_type: GamepadButtonType::Select,
+        }
     };
 
     let screens = [
@@ -289,7 +297,10 @@ fn screen_change(
         return;
     };
 
-    if buttons.just_pressed(left_button) && buttons.pressed(select_button) {
+    if buttons.just_released(left_button)
+        && buttons.pressed(start_button)
+        && !buttons.pressed(a_button)
+    {
         // button just pressed: make the player jump
         info!("menu tab move left");
         let i = if screen_i > 0 {
@@ -313,7 +324,10 @@ fn screen_change(
             next_screen.set(screen_state);
             *screen_res = screen
         }
-    } else if buttons.just_pressed(right_button) && buttons.pressed(select_button) {
+    } else if buttons.just_released(right_button)
+        && buttons.pressed(start_button)
+        && !buttons.pressed(a_button)
+    {
         // button just pressed: make the player jump
         info!("menu tab move right");
         let change_to = screens[(screen_i + 1) % screens.len()];
@@ -334,83 +348,83 @@ fn screen_change(
     }
 }
 
-fn gamepad_input(
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
-    // keys: Res<ButtonInput<KeyCode>>,
-) {
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
-
-    // In a real game, the buttons would be configurable, but here we hardcode them
-    let b_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::South,
-    };
-    let a_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::East,
-    };
-    let x_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::North,
-    };
-    let y_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::West,
-    };
-    let up_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadUp,
-    };
-    let down_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadDown,
-    };
-    let left_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadLeft,
-    };
-    let right_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadRight,
-    };
-
-    // if buttons.just_pressed(b_button) || keys.just_pressed(KeyCode::KeyZ) {
-    if buttons.just_pressed(b_button) {
-        // button just pressed: make the player jump
-        println!("B Button pressed");
-    }
-
-    // if buttons.just_pressed(a_button) || keys.just_pressed(KeyCode::KeyX) {
-    if buttons.just_pressed(a_button) {
-        // button being held down: heal the player
-        println!("A Button pressed");
-    }
-
-    if buttons.just_pressed(x_button) {
-        println!("X Button pressed");
-    }
-
-    if buttons.just_pressed(y_button) {
-        println!("Y Button pressed");
-    }
-
-    if buttons.just_pressed(up_button) {
-        println!("UP Button pressed");
-    }
-
-    if buttons.just_pressed(down_button) {
-        println!("DOWN Button pressed");
-    }
-
-    if buttons.just_pressed(left_button) {
-        println!("LEFT Button pressed");
-    }
-
-    if buttons.just_pressed(right_button) {
-        println!("RIGHT Button pressed");
-    }
-}
+// fn gamepad_input(
+//     buttons: Res<ButtonInput<GamepadButton>>,
+//     my_gamepad: Option<Res<MyGamepad>>,
+//     // keys: Res<ButtonInput<KeyCode>>,
+// ) {
+//     let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+//         // no gamepad is connected
+//         return;
+//     };
+//
+//     // In a real game, the buttons would be configurable, but here we hardcode them
+//     let b_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::South,
+//     };
+//     let a_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::East,
+//     };
+//     let x_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::North,
+//     };
+//     let y_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::West,
+//     };
+//     let up_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::DPadUp,
+//     };
+//     let down_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::DPadDown,
+//     };
+//     let left_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::DPadLeft,
+//     };
+//     let right_button = GamepadButton {
+//         gamepad,
+//         button_type: GamepadButtonType::DPadRight,
+//     };
+//
+//     // if buttons.just_pressed(b_button) || keys.just_pressed(KeyCode::KeyZ) {
+//     if buttons.just_pressed(b_button) {
+//         // button just pressed: make the player jump
+//         println!("B Button pressed");
+//     }
+//
+//     // if buttons.just_pressed(a_button) || keys.just_pressed(KeyCode::KeyX) {
+//     if buttons.just_pressed(a_button) {
+//         // button being held down: heal the player
+//         println!("A Button pressed");
+//     }
+//
+//     if buttons.just_pressed(x_button) {
+//         println!("X Button pressed");
+//     }
+//
+//     if buttons.just_pressed(y_button) {
+//         println!("Y Button pressed");
+//     }
+//
+//     if buttons.just_pressed(up_button) {
+//         println!("UP Button pressed");
+//     }
+//
+//     if buttons.just_pressed(down_button) {
+//         println!("DOWN Button pressed");
+//     }
+//
+//     if buttons.just_pressed(left_button) {
+//         println!("LEFT Button pressed");
+//     }
+//
+//     if buttons.just_pressed(right_button) {
+//         println!("RIGHT Button pressed");
+//     }
+// }

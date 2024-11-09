@@ -1,5 +1,7 @@
+#![feature(let_chains)]
 use crate::config::ui::{get_config, TrackerConfig};
 use bevy::{a11y::AccessibilityPlugin, log::LogPlugin, prelude::*};
+use chain_menu::ChainMenuPlugin;
 use config::ui::{ColorsConfig, FontConfig, MenuUiConf, TabUiConf, UiConfig};
 use controls::ControlsPlugin;
 use ipc::{gen_ipc, RustIPC, TrackerIPC};
@@ -8,6 +10,7 @@ use pygame_coms::{
     ScreenData, Song, SongRow, State, TrackerCommand,
 };
 use pyo3::prelude::*;
+use song_menu::SongMenuPlugin;
 use std::{thread::spawn, time::Instant};
 use tracker_state::TrackerStatePlugin;
 
@@ -29,10 +32,12 @@ pub enum PlayingState {
     NotPlaying,
 }
 
+pub mod chain_menu;
 pub mod config;
 pub mod controls;
 pub mod ipc;
 pub mod pygame_coms;
+pub mod song_menu;
 pub mod tracker_state;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Debug, Resource, Component)]
@@ -72,16 +77,6 @@ impl ControllerInput {
 
 fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
     let runner = move |mut app: App| -> AppExit {
-        // let mut config = TrackerConfig::default();
-        // // config.colors.text = [10, 100, 20];
-        // config.colors.text = [166, 227, 161];
-        // config.colors.back_ground = [30, 30, 46];
-        // config.ui.menu.tempo = 1.0 / 6.0;
-        // config.ui.menu.note_display = 2.0 / 6.0;
-        // config.font.size = vec![30].into();
-        // config.ui.menu.osciloscope = 4.0 / 6.0;
-        // config.ui.menu.menu_map = 1.0;
-
         app.insert_resource(ControllerInput::new());
         app.insert_resource(io.clone());
         // app.insert_resource(config);
@@ -158,6 +153,8 @@ fn start(io: RustIPC) {
         .add_plugins(ControlsPlugin)
         // .add_plugins(base_display::BaseDisplayPlugin)
         .add_plugins(TrackerStatePlugin)
+        .add_plugins(SongMenuPlugin)
+        .add_plugins(ChainMenuPlugin)
         // .insert_state(ScreenData::Song)
         .init_state::<ScreenState>()
         .init_state::<PlayingState>()

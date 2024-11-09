@@ -27,7 +27,7 @@ impl Plugin for TrackerStatePlugin {
             .insert_resource(PlaybackCursorWrapper::default())
             .insert_resource(DisplayCursor::default())
             .insert_resource(Song::default())
-            // .add_systems(Update, send_state.run_if(run_if_state_updated));
+            .add_systems(Update, send_state.run_if(run_if_state_updated))
             .add_systems(OnEnter(ScreenState::EditSong), send_state)
             .add_systems(OnEnter(ScreenState::EditChain), send_state)
             .add_systems(OnEnter(ScreenState::EditPhrase), send_state)
@@ -54,10 +54,11 @@ pub struct AllChains(pub Chains);
 
 impl Default for AllChains {
     fn default() -> Self {
-        let mut s = Self([None; 256]);
-        s.0[0] = Some(Chain::default());
-
-        s
+        // let mut s = Self([None; 256]);
+        // s.0[0] = Some(Chain::default());
+        //
+        // s
+        Self([None; 256])
     }
 }
 
@@ -73,6 +74,10 @@ impl Default for AllInstruments {
 
         Self(insts)
     }
+}
+
+fn run_if_state_updated(updated: Res<StateUpdated>) -> bool {
+    updated.0
 }
 
 fn send_state(
@@ -133,7 +138,3 @@ fn send_state(
 
     info!("sending complete");
 }
-
-// fn run_if_state_updated(updated: Res<StateUpdated>) -> bool {
-//     updated.0
-// }

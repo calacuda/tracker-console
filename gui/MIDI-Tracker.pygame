@@ -78,6 +78,18 @@ class PygameState:
 
             self.screen.blit(display, textRect)
 
+    def draw_rect(self, ancor, size, fill_color, center=True):
+        color = fill_color
+        (left, top) = ancor
+        (width, height) = size
+
+        rect = Rect((top, left), (width, height))
+
+        if center:
+            rect.center = (left, top)
+
+        pygame.draw.rect(screen, color, rect)
+
 
 def clear_screen():
     log.debug("clearing screen")
@@ -270,10 +282,10 @@ def draw_chain(state: State):
     tab.draw()
 
 
-def draw_side(state: State):
+def draw_side(state: State, i):
     log.debug("drawing side bar")
     side_bar = SideBar(state, PygameState())
-    side_bar.draw()
+    side_bar.draw(i)
 
 
 def proccess_state_change():
@@ -291,12 +303,12 @@ def proccess_state_change():
             log.info("Song tab state recieved")
             # log.error("not yet implemented")
             draw_song(state)
-            draw_side(state)
+            draw_side(state, 0)
         case ScreenData.Chain(_):
             log.info("Chain tab state recieved")
             # log.error("not yet implemented")
             draw_chain(state)
-            draw_side(state)
+            draw_side(state, 1)
         case ScreenData.Phrase(_):
             log.info("Phrase tab state recieved")
             log.error("not yet implemented")

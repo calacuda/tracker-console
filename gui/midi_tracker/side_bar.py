@@ -7,7 +7,7 @@ class SideBar:
         (self.screen_width, self.screen_height) = pg_state.screen_size
         self.pg_state = pg_state
 
-    def draw(self):
+    def draw(self, i):
         """renders the side bar to the screen"""
         left_most = self.screen_width - \
             (self.screen_width * self.pg_state.config.ui.menu.width)
@@ -15,7 +15,7 @@ class SideBar:
         bottom = self.draw_tempo(left_most)
         bottom = self.draw_notes(left_most, bottom)
         bottom = self.draw_osciloscope(left_most, bottom)
-        self.draw_menu_map(left_most, bottom)
+        self.draw_menu_map(i, left_most, bottom)
 
     def draw_tempo(self, left_most: float) -> float:
         """draws tempo display to the screen"""
@@ -65,7 +65,7 @@ class SideBar:
 
         return bottom
 
-    def draw_menu_map(self, left_most: float, top: float):
+    def draw_menu_map(self, i, left_most: float, top: float):
         """draws menu map to the screen"""
         self.log.info("drawing menu map")
-        self.pg_state.draw_tap_map(0, left_most, top)
+        self.pg_state.draw_tap_map(i, left_most, top)

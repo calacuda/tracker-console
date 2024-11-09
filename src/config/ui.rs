@@ -68,6 +68,7 @@ pub fn get_config() -> TrackerConfig {
     // config.colors.text = [10, 100, 20];
     config.colors.text = [166, 227, 161];
     config.colors.back_ground = [30, 30, 46];
+    config.colors.cursor = [137, 180, 250];
     config.ui.menu.tempo = 1.0 / 6.0;
     config.ui.menu.note_display = 2.0 / 6.0;
     config.font.size = vec![30];

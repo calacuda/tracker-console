@@ -55,8 +55,8 @@ class ChainsTab:
             bottom = (height * 3.0) + height * row_i
             middle_y = bottom - height * 0.5
 
-            for col_i, lable in enumerate([f"{row_i:02X}", row.phrase]):
-                text = lable if lable is not None else "---"
+            for col_i, lable in enumerate([row_i, row.phrase]):
+                text = f"{lable:02X}" if lable is not None else "--"
 
                 middle_x = ((col_width * 0.5) + (col_width * col_i))
                 display = self.pg_state.fonts[1].render(
@@ -64,5 +64,17 @@ class ChainsTab:
                 textRect = display.get_rect()
 
                 textRect.center = (middle_x, middle_y)
+
+                # print(f"({self.state.display_cursor.row}, {
+                #       self.state.display_cursor.col})")
+
+                if row_i == self.state.display_cursor.row and col_i - 1 == self.state.display_cursor.col and self.state.display_cursor.selected:
+                    self.pg_state.draw_rect(
+                        (middle_x, middle_y), (col_width, height), self.pg_state.config.colors.cursor)
+                elif row_i == self.state.display_cursor.row and col_i - 1 == self.state.display_cursor.col:
+                    self.pg_state.draw_rect(
+                        (middle_x, middle_y), (col_width, height), self.pg_state.config.colors.cursor)
+                    self.pg_state.draw_rect(
+                        (middle_x, middle_y), (col_width - 5, height - 5), self.pg_state.config.colors.back_ground)
 
                 self.pg_state.screen.blit(display, textRect)
