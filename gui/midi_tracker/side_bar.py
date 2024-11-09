@@ -11,10 +11,10 @@ class SideBar:
         """renders the side bar to the screen"""
         left_most = self.screen_width - \
             (self.screen_width * self.pg_state.config.ui.menu.width)
-
         bottom = self.draw_tempo(left_most)
         bottom = self.draw_notes(left_most, bottom)
         bottom = self.draw_osciloscope(left_most, bottom)
+
         self.draw_menu_map(i, left_most, bottom)
 
     def draw_tempo(self, left_most: float) -> float:
