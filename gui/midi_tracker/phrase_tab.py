@@ -27,7 +27,7 @@ class PhrasesTab:
         n = self.state.screen._0.name
 
         display = self.pg_state.fonts[0].render(
-            f"Phrase {n}", True, color)
+            f"Phrase {n:02X}", True, color)
         textRect = display.get_rect()
 
         textRect.center = (middle_x, middle_y)

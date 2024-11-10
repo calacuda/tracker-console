@@ -27,7 +27,7 @@ class ChainsTab:
         n = self.state.screen._0.name
 
         display = self.pg_state.fonts[0].render(
-            f"Chain {n}", True, color)
+            f"Chain {n:02X}", True, color)
         textRect = display.get_rect()
 
         textRect.center = (middle_x, middle_y)

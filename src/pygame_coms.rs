@@ -73,6 +73,7 @@ pub enum InstrumentOutput {
 pub struct Instrument {
     pub output: InstrumentOutput,
     pub human_name: String,
+    pub name: Index,
 }
 
 impl Instrument {
@@ -81,6 +82,7 @@ impl Instrument {
             // synth: true,
             output: InstrumentOutput::Synth,
             human_name: format!("Synth {index}"),
+            name: index,
         }
     }
 }

@@ -1,5 +1,3 @@
-use std::ops::DerefMut;
-
 use crate::{
     controls::{LastAdded, MyGamepad},
     pygame_coms::{DisplayCursor, Index, Instrument, Note, Screen},
@@ -7,6 +5,7 @@ use crate::{
     ScreenState,
 };
 use bevy::{log::*, prelude::*};
+use std::ops::DerefMut;
 
 #[derive(Debug, Clone, Default, Resource)]
 struct PhraseIndex(Index);
@@ -15,7 +14,7 @@ pub struct PhraseMenuPlugin;
 
 impl Plugin for PhraseMenuPlugin {
     fn build(&self, app: &mut App) {
-        debug!("tracker_backend::controls::Song loaded");
+        debug!("tracker_backend::controls::Phrase Menu Plugin loaded");
 
         app
             // .add_systems(Update, set_phrase.run_if(in_state(ScreenState::EditPhrase)))
@@ -37,9 +36,9 @@ impl Plugin for PhraseMenuPlugin {
             // .add_systems(Update, play.run_if(in_state(ScreenState::EditSong)))
             .add_systems(OnEnter(ScreenState::EditPhrase), set_phrase_index)
             .add_systems(OnEnter(ScreenState::EditPhrase), set_selected)
-            .add_systems(OnEnter(ScreenState::EditPhrase), set_cursor)
-            // .add_systems(OnEnter(ScreenState::EditPhrase), log_phrase_data)
-            .add_systems(OnEnter(ScreenState::EditPhrase), update_display);
+            .add_systems(OnEnter(ScreenState::EditPhrase), set_cursor);
+        // .add_systems(OnEnter(ScreenState::EditPhrase), log_phrase_data)
+        // .add_systems(OnEnter(ScreenState::EditPhrase), update_display);
     }
 }
 
@@ -86,9 +85,9 @@ struct EditCmd {
 //     }
 // }
 
-fn update_display(mut state_updated: ResMut<StateUpdated>) {
-    state_updated.0 = true;
-}
+// fn update_display(mut state_updated: ResMut<StateUpdated>) {
+//     state_updated.0 = true;
+// }
 
 fn set_phrase_index(mut phrase_index: ResMut<PhraseIndex>, screen: Res<Screen>) {
     if let Screen::EditPhrase(phrase_i) = *screen {
@@ -108,7 +107,7 @@ fn set_cursor(mut display_cursor: ResMut<DisplayCursor>) {
 
 fn set_select(
     mut display_cursor: ResMut<DisplayCursor>,
-    mut state_updated: ResMut<StateUpdated>,
+    mut state_updated: EventWriter<StateUpdated>,
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
     // mut select_event: EventWriter<EnterSelect>,
@@ -135,7 +134,8 @@ fn set_select(
         || (buttons.pressed(a_button) && !display_cursor.selected))
         && !buttons.pressed(b_button)
     {
-        state_updated.0 = true;
+        // state_updated.0 = true;
+        state_updated.send_default();
         display_cursor.selected = !(!buttons.pressed(a_button) && display_cursor.selected)
             || (buttons.pressed(a_button) && !display_cursor.selected);
 
@@ -152,7 +152,7 @@ fn set_select(
 fn change_entry(
     phrases: Res<AllPhrases>,
     display_cursor: Res<DisplayCursor>,
-    state_updated: Res<StateUpdated>,
+    // state_updated: EventWriter<StateUpdated>,
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
     phrase_index: Res<PhraseIndex>,
@@ -201,7 +201,7 @@ fn change_entry(
         && buttons.pressed(a_button)
         && !buttons.pressed(b_button)
         && display_cursor.selected
-        && !state_updated.0
+    // && !state_updated.0
     {
         if display_cursor.col == 0 {
             // send edit note event
@@ -224,7 +224,7 @@ fn change_entry(
         && buttons.pressed(a_button)
         && !buttons.pressed(b_button)
         && display_cursor.selected
-        && !state_updated.0
+    // && !state_updated.0
     {
         if display_cursor.col == 0 {
             // send edit note event
@@ -247,7 +247,7 @@ fn change_entry(
         && buttons.pressed(a_button)
         && !buttons.pressed(b_button)
         && display_cursor.selected
-        && !state_updated.0
+    // && !state_updated.0
     {
         if display_cursor.col == 0 {
             // send edit note event
@@ -270,7 +270,7 @@ fn change_entry(
         && buttons.pressed(a_button)
         && !buttons.pressed(b_button)
         && display_cursor.selected
-        && !state_updated.0
+    // && !state_updated.0
     {
         if display_cursor.col == 0 {
             // send edit note event
@@ -295,7 +295,7 @@ fn edit_note(
     mut last_added: ResMut<LastAdded>,
     display_cursor: Res<DisplayCursor>,
     mut events: EventReader<EditNote>,
-    mut state_updated: ResMut<StateUpdated>,
+    mut state_updated: EventWriter<StateUpdated>,
     phrase_index: Res<PhraseIndex>,
 ) {
     let phrase_i = phrase_index.0;
@@ -312,14 +312,16 @@ fn edit_note(
                         *note -= ev.delta.abs() as Note;
                     }
                     last_added.note = *note;
-                    state_updated.0 = true;
+                    // state_updated.0 = true;
+                    state_updated.send_default();
                 } else {
                     warn!("not changing note.");
                 }
             } else {
                 info!("adding MIDI note {}.", last_added.note);
                 phrase.rows[display_cursor.row].note = Some(last_added.note);
-                state_updated.0 = true;
+                // state_updated.0 = true;
+                state_updated.send_default();
             }
         } else {
             error!("attempting to edit a note phrase {phrase_i}, which does not exist.");
@@ -333,7 +335,7 @@ fn edit_inst(
     mut last_added: ResMut<LastAdded>,
     display_cursor: Res<DisplayCursor>,
     mut events: EventReader<EditInst>,
-    mut state_updated: ResMut<StateUpdated>,
+    mut state_updated: EventWriter<StateUpdated>,
     phrase_index: Res<PhraseIndex>,
 ) {
     let phrase_i = phrase_index.0;
@@ -351,7 +353,8 @@ fn edit_inst(
                         *inst -= ev.delta.abs() as Index;
                     }
                     last_added.instrument = *inst;
-                    state_updated.0 = true;
+                    // state_updated.0 = true;
+                    state_updated.send_default();
 
                     if instruments.0.get(*inst).is_none() {
                         for _ in instruments.0.len()..*inst {
@@ -370,7 +373,8 @@ fn edit_inst(
                 }
             } else {
                 phrase.rows[display_cursor.row].instrument = Some(last_added.instrument);
-                state_updated.0 = true;
+                // state_updated.0 = true;
+                state_updated.send_default();
             }
         } else {
             error!("attempting to edit an instruemnt in phrase {phrase_i}, which does not exist.");
@@ -383,7 +387,7 @@ fn edit_cmd(
     mut last_added: ResMut<LastAdded>,
     display_cursor: Res<DisplayCursor>,
     mut events: EventReader<EditCmd>,
-    mut state_updated: ResMut<StateUpdated>,
+    mut state_updated: EventWriter<StateUpdated>,
     phrase_index: Res<PhraseIndex>,
 ) {
     let phrase_i = phrase_index.0;
@@ -409,7 +413,8 @@ fn edit_cmd(
                 warn!("TODO: edit command");
             } else {
                 phrase.rows[display_cursor.row].command = Some(last_added.command);
-                state_updated.0 = true;
+                // state_updated.0 = true;
+                state_updated.send_default();
             }
         } else {
             error!("attempting to edit a note phrase {phrase_i}, which does not exist.");
@@ -421,7 +426,7 @@ fn movement(
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
     mut display_cursor: ResMut<DisplayCursor>,
-    mut state_updated: ResMut<StateUpdated>,
+    mut state_updated: EventWriter<StateUpdated>,
     gamepads: Res<Gamepads>,
 ) {
     if display_cursor.selected {
@@ -473,7 +478,8 @@ fn movement(
         };
 
         display_cursor.row = new_row;
-        state_updated.0 = true;
+        // state_updated.0 = true;
+        state_updated.send_default();
     }
 
     if buttons.just_released(down_button) && !buttons.pressed(start_button) {
@@ -484,7 +490,8 @@ fn movement(
         };
 
         display_cursor.row = new_row;
-        state_updated.0 = true;
+        // state_updated.0 = true;
+        state_updated.send_default();
     }
 
     if buttons.just_released(left_button) && !buttons.pressed(start_button) {
@@ -495,7 +502,8 @@ fn movement(
         };
 
         display_cursor.col = new_col;
-        state_updated.0 = true;
+        // state_updated.0 = true;
+        state_updated.send_default();
     }
 
     if buttons.just_released(right_button) && !buttons.pressed(start_button) {
@@ -506,7 +514,8 @@ fn movement(
         };
 
         display_cursor.col = new_col;
-        state_updated.0 = true;
+        // state_updated.0 = true;
+        state_updated.send_default();
     }
 }
 
@@ -515,7 +524,7 @@ fn rm(
     my_gamepad: Option<Res<MyGamepad>>,
     phrase_index: Res<PhraseIndex>,
     display_cursor: Res<DisplayCursor>,
-    mut state_updated: ResMut<StateUpdated>,
+    mut state_updated: EventWriter<StateUpdated>,
     mut phrases: ResMut<AllPhrases>,
 ) {
     let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
@@ -554,7 +563,8 @@ fn rm(
 
         warn!("rming something");
 
-        state_updated.0 = true;
+        // state_updated.0 = true;
+        state_updated.send_default();
     }
     // else {
     //     warn!("not rming");
