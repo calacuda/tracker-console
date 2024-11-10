@@ -21,12 +21,17 @@ impl Plugin for SongMenuPlugin {
             .add_systems(Update, change_chain.run_if(in_state(ScreenState::EditSong)))
             .add_systems(Update, rm.run_if(in_state(ScreenState::EditSong)))
             // .add_systems(Update, play.run_if(in_state(ScreenState::EditSong)))
-            .add_systems(OnEnter(ScreenState::EditSong), set_selected);
+            .add_systems(OnEnter(ScreenState::EditSong), set_selected)
+            .add_systems(OnEnter(ScreenState::EditSong), update_display);
     }
 }
 
 fn set_selected(mut display_cursor: ResMut<DisplayCursor>) {
     display_cursor.selected = false;
+}
+
+fn update_display(mut state_updated: ResMut<StateUpdated>) {
+    state_updated.0 = true;
 }
 
 fn set_select(

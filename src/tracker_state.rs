@@ -2,8 +2,8 @@ use crate::{
     config::ui::Bpm,
     ipc::RustIPC,
     pygame_coms::{
-        Chain, Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper,
-        Screen, ScreenData, Song, State,
+        Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper, Screen,
+        ScreenData, Song, State,
     },
     ScreenState,
 };

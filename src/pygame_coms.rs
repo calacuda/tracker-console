@@ -1,5 +1,5 @@
 use crate::config::ui::Bpm;
-use bevy::prelude::{Component, Resource, States};
+use bevy::prelude::{Component, Resource};
 use pyo3::pyclass;
 use std::{
     ops::{Index as IndexInto, IndexMut},
@@ -53,12 +53,36 @@ pub enum TrackerCommand {
     Volume(f32),
 }
 
+impl Default for TrackerCommand {
+    fn default() -> Self {
+        Self::Volume(1.0)
+    }
+}
+
+#[pyclass(module = "tracker_backend", get_all)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd)]
+pub enum InstrumentOutput {
+    UsbMidi,
+    // InternalMidi,
+    Synth,
+    Percusion,
+}
+
 #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd)]
 pub struct Instrument {
-    /// true if the instruemnt is a synth, false if its percussion
-    pub synth: bool,
+    pub output: InstrumentOutput,
     pub human_name: String,
+}
+
+impl Instrument {
+    pub fn new(index: usize) -> Self {
+        Self {
+            // synth: true,
+            output: InstrumentOutput::Synth,
+            human_name: format!("Synth {index}"),
+        }
+    }
 }
 
 #[pyclass(module = "tracker_backend", get_all)]
@@ -69,17 +93,19 @@ pub struct PhraseRow {
     pub command: Option<TrackerCommand>,
 }
 
-impl IndexInto<Index> for PhraseRow {
-    type Output = Option<Index>;
-
-    fn index(&self, index: Index) -> &Self::Output {
-        if index == 1 {
-            &self.instrument
-        } else {
-            &None
-        }
-    }
-}
+// impl IndexInto<Index> for PhraseRow {
+//     type Output = Option<Index>;
+//
+//     fn index(&self, index: Index) -> &Self::Output {
+//         if index == 0 {
+//             &self.note
+//         } else if index == 1 {
+//             &self.instrument
+//         } else {
+//             &None
+//         }
+//     }
+// }
 
 /// a single phrase to be used as a part of chains
 #[pyclass(module = "tracker_backend", get_all)]

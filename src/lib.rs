@@ -5,6 +5,7 @@ use chain_menu::ChainMenuPlugin;
 use config::ui::{ColorsConfig, FontConfig, MenuUiConf, TabUiConf, UiConfig};
 use controls::ControlsPlugin;
 use ipc::{gen_ipc, RustIPC, TrackerIPC};
+use phrase_menu::PhraseMenuPlugin;
 use pygame_coms::{
     Button, Chain, ChainRow, InputCMD, Instrument, Phrase, PhraseRow, PlaybackCursor, Screen,
     ScreenData, Song, SongRow, State, TrackerCommand,
@@ -36,6 +37,7 @@ pub mod chain_menu;
 pub mod config;
 pub mod controls;
 pub mod ipc;
+pub mod phrase_menu;
 pub mod pygame_coms;
 pub mod song_menu;
 pub mod tracker_state;
@@ -155,6 +157,7 @@ fn start(io: RustIPC) {
         .add_plugins(TrackerStatePlugin)
         .add_plugins(SongMenuPlugin)
         .add_plugins(ChainMenuPlugin)
+        .add_plugins(PhraseMenuPlugin)
         // .insert_state(ScreenData::Song)
         .init_state::<ScreenState>()
         .init_state::<PlayingState>()
@@ -194,6 +197,7 @@ fn tracker_backend(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<State>()?;
     m.add_class::<ScreenData>()?;
     m.add_class::<TrackerConfig>()?;
+    m.add_class::<TrackerCommand>()?;
     m.add_class::<FontConfig>()?;
     m.add_class::<ColorsConfig>()?;
     m.add_class::<UiConfig>()?;

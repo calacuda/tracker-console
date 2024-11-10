@@ -3,6 +3,7 @@ import pygame
 from pygame.rect import Rect
 from tracker_backend import SongRow, InputCMD, Button, ScreenData, State, get_config, run as run_tracker
 from pathlib import Path
+from midi_tracker.phrase_tab import PhrasesTab
 from midi_tracker._logging import get_logger
 from midi_tracker.side_bar import SideBar
 from midi_tracker.song_tab import SongTab
@@ -282,6 +283,12 @@ def draw_chain(state: State):
     tab.draw()
 
 
+def draw_phrase(state: State):
+    log.debug("drawing phrase tab")
+    tab = PhrasesTab(state, PygameState())
+    tab.draw()
+
+
 def draw_side(state: State, i):
     log.debug("drawing side bar")
     side_bar = SideBar(state, PygameState())
@@ -311,7 +318,9 @@ def proccess_state_change():
             draw_side(state, 1)
         case ScreenData.Phrase(_):
             log.info("Phrase tab state recieved")
-            log.error("not yet implemented")
+            # log.error("not yet implemented")
+            draw_phrase(state)
+            draw_side(state, 2)
         case ScreenData.Instrument(_):
             log.info("Instrument tab state recieved")
             log.error("not yet implemented")

@@ -1,5 +1,5 @@
 use crate::{
-    pygame_coms::{DisplayCursor, Index, Screen, Song},
+    pygame_coms::{DisplayCursor, Index, Note, Screen, Song, TrackerCommand},
     tracker_state::{AllChains, AllInstruments, AllPhrases},
     ScreenState,
 };
@@ -37,8 +37,8 @@ pub struct LastAdded {
     pub chain: Index,
     pub phrase: Index,
     pub instrument: Index,
-    pub note: Index,
-    pub command: Index,
+    pub note: Note,
+    pub command: TrackerCommand,
 }
 
 #[derive(Default, Debug, Clone, Copy, PartialEq, Eq, Hash, Resource)]
@@ -128,9 +128,10 @@ fn update_state(
                 Some((Screen::EditPhrase(phrase_i), ScreenState::EditPhrase))
             } else if phrases.0[last_viewed.phrase].is_some() {
                 // *screen = Screen::EditChain(last_viewed.chain);
+                last_viewed.chain = chain_i;
                 Some((
-                    Screen::EditChain(last_viewed.phrase),
-                    ScreenState::EditChain,
+                    Screen::EditPhrase(last_viewed.phrase),
+                    ScreenState::EditPhrase,
                 ))
             } else {
                 None
@@ -143,12 +144,9 @@ fn update_state(
         }
         // edit_phrase -> edit_chains
         (Screen::EditPhrase(phrase_i), ScreenState::EditChain) => {
-            if phrases.0.get(last_viewed.phrase).is_some() {
+            if phrases.0.get(last_viewed.chain).is_some() {
                 last_viewed.phrase = phrase_i;
-                Some((
-                    Screen::EditChain(last_viewed.chain),
-                    ScreenState::EditPhrase,
-                ))
+                Some((Screen::EditChain(last_viewed.chain), ScreenState::EditChain))
             } else {
                 None
             }
@@ -162,7 +160,9 @@ fn update_state(
                 // *screen = Screen::Instrument(instrument_i);
                 last_viewed.phrase = phrase_i;
                 Some((Screen::Instrument(instrument_i), ScreenState::EditInsts))
-            } else if instruments.0[last_viewed.instrument % 256].is_some() {
+            } else if let Some(inst) = instruments.0.get(last_viewed.instrument % 256)
+                && inst.is_some()
+            {
                 // *screen = Screen::Instrument(last_viewed.instrument % instruments.0.len());
                 last_viewed.phrase = phrase_i;
                 Some((
@@ -170,6 +170,7 @@ fn update_state(
                     ScreenState::EditInsts,
                 ))
             } else {
+                warn!("{last_viewed:?} <===> {instrument:?}");
                 None
             }
         }
@@ -304,7 +305,7 @@ fn screen_change(
         // button just pressed: make the player jump
         info!("menu tab move left");
         let i = if screen_i > 0 {
-            (screen_i - 1) % screens.len()
+            screen_i - 1
         } else {
             screens.len() - 1
         };
@@ -322,7 +323,13 @@ fn screen_change(
             change_to,
         ) {
             next_screen.set(screen_state);
-            *screen_res = screen
+            *screen_res = screen;
+            // state_updated.0 = true;
+        } else {
+            debug!(
+                "am on screen: {:?}, and am switching to: {:?}, this operation failed",
+                screens[screen_i], screens[i]
+            )
         }
     } else if buttons.just_released(right_button)
         && buttons.pressed(start_button)
@@ -343,7 +350,10 @@ fn screen_change(
             change_to,
         ) {
             next_screen.set(screen_state);
-            *screen_res = screen
+            *screen_res = screen;
+            // state_updated.0 = true;
+        } else {
+            error!("not moving");
         }
     }
 }

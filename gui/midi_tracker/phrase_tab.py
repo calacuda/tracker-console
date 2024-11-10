@@ -1,7 +1,7 @@
-from tracker_backend import ChainRow
+from tracker_backend import TrackerCommand, PhraseRow
 
 
-class ChainsTab:
+class PhrasesTab:
     def __init__(self, state, pg_state) -> None:
         # self.screen = pg_state.screen
         self.state = state
@@ -27,7 +27,7 @@ class ChainsTab:
         n = self.state.screen._0.name
 
         display = self.pg_state.fonts[0].render(
-            f"Chain {n}", True, color)
+            f"Phrase {n}", True, color)
         textRect = display.get_rect()
 
         textRect.center = (middle_x, middle_y)
@@ -38,7 +38,7 @@ class ChainsTab:
         color = self.pg_state.config.colors.text
         middle_y = (height * 3.0) * 0.5
 
-        for i, lable in enumerate(["", "PHRASE"]):
+        for i, lable in enumerate(["", "NOTE", "INST", "CMD"]):
             middle_x = ((col_width * 0.5) + (col_width * i))
             display = self.pg_state.fonts[1].render(
                 lable, True, color)
@@ -48,19 +48,27 @@ class ChainsTab:
 
             self.pg_state.screen.blit(display, textRect)
 
-    def draw_rows(self, rows: list[ChainRow], height: float, col_width: float):
+    def draw_rows(self, rows: list[PhraseRow], height: float, col_width: float):
         color = self.pg_state.config.colors.text
 
         for row_i, row in enumerate(rows):
             bottom = (height * 3.0) + height * row_i
             middle_y = bottom - height * 0.5
 
-            for col_i, lable in enumerate([row_i, row.phrase]):
-                text = f"{lable:02X}" if lable is not None else "--"
+            for col_i, lable in enumerate(
+                    [
+                        f"{row_i:02X}",
+                        self.pg_state.display_note(row.note),
+                        f"{row.instrument:02X}" if row.instrument is not None else "--",
+                        # f"{row.command:02X}" if row.command is not None else "--"
+                        self.fmt_cmd(
+                            row.command)
+                    ]):
+                # text = f"{lable:02X}" if lable is not None else "--"
 
                 middle_x = ((col_width * 0.5) + (col_width * col_i))
                 display = self.pg_state.fonts[1].render(
-                    text, True, color)
+                    lable, True, color)
                 textRect = display.get_rect()
 
                 textRect.center = (middle_x, middle_y)
@@ -78,3 +86,14 @@ class ChainsTab:
                         (middle_x, middle_y), (col_width - 5, height - 5), self.pg_state.config.colors.back_ground)
 
                 self.pg_state.screen.blit(display, textRect)
+
+    def fmt_cmd(self, cmd):
+        if cmd is None:
+            return "---"
+
+        print(type(cmd), cmd)
+
+        match cmd:
+            case TrackerCommand.Volume(arg):
+                arg = int(arg * 15)
+                return f"V-{arg:X}"

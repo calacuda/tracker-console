@@ -23,8 +23,13 @@ impl Plugin for ChainMenuPlugin {
             .add_systems(Update, rm.run_if(in_state(ScreenState::EditChain)))
             // .add_systems(Update, play.run_if(in_state(ScreenState::EditSong)))
             .add_systems(OnEnter(ScreenState::EditChain), set_selected)
-            .add_systems(OnEnter(ScreenState::EditChain), set_cursor);
+            .add_systems(OnEnter(ScreenState::EditChain), set_cursor)
+            .add_systems(OnEnter(ScreenState::EditChain), update_display);
     }
+}
+
+fn update_display(mut state_updated: ResMut<StateUpdated>) {
+    state_updated.0 = true;
 }
 
 fn set_selected(mut display_cursor: ResMut<DisplayCursor>) {
@@ -168,8 +173,12 @@ fn add_phrase(
 ) {
     if let Screen::EditChain(chain_i) = *screen {
         if let Some(phrase_i) = chains.0[chain_i].unwrap().rows[display_cursor.row].phrase {
-            phrases.0[phrase_i] = Some(Phrase::default());
-            last_added.phrase = phrase_i;
+            if phrases.0[phrase_i].is_none() {
+                let mut phrase = Phrase::default();
+                phrase.name = phrase_i;
+                phrases.0[phrase_i] = Some(phrase);
+                last_added.phrase = phrase_i;
+            }
         }
     }
 }
