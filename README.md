@@ -4,7 +4,7 @@ A midi tracker for linux powered handheld retro emulation handhelds such as the 
 
 ## TODO
 
-- [ ] have all rendering handled by the python side. rust code should only output on state changes.
+- [x] have all rendering handled by the python side. rust code should only output on state changes.
 
 ## Statefull Rewrite
 
