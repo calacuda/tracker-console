@@ -47,11 +47,11 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           before-script-linux: "
-          echo \"cwd -> $(pwd)\"
-          echo \"PKG_CONFIG_SYSROOT_DIR -> $PKG_CONFIG_SYSROOT_DIR\"
-          cargo install just
-          echo \"$> just setup-${{ matrix.platform.target }}\"
-          just setup-${{ matrix.platform.target }}
+          echo \"cwd -> $(pwd)\";
+          echo \"PKG_CONFIG_SYSROOT_DIR -> $PKG_CONFIG_SYSROOT_DIR\";
+          cargo install just;
+          echo \"$> just setup-${{ matrix.platform.target }}\";
+          just setup-${{ matrix.platform.target }};
           "
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --zig
