@@ -9,18 +9,31 @@ only-run:
 
 run-new: install-lib only-run
 
-flash-scp:
-  scp -r ./{gui/MIDI-Tracker.pygame,dist/tracker_backend-0.1.0-cp311-cp311-manylinux_2_34_aarch64.whl}  root@192.168.1.55:/userdata/roms/ports/MIDI-Tracker/
+hardware-test: build-debug flash-adb
 
-build:
+flash-hardware: build-release flash-adb
+
+flash-adb:
+  adb push ./{gui/{MIDI-Tracker.pygame,midi_tracker},dist/tracker_backend-0.1.0-cp311-cp311-manylinux_2_34_aarch64.whl} /userdata/roms/ports/MIDI-Tracker/
+  adb shell "cd /userdata/roms/ports/MIDI-Tracker/; . /userdata/roms/ports/MIDI-Tracker/.venv/bin/activate; pip pip install --use-wheel --no-index --find-links=\"/pkgs\" ./tracker_backend-*aarch64.whl"
+
+build-debug:
   # PKG_CONFIG_SYSROOT_DIR=/opt/ArchARM maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
-  PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/ maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
+  PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/aarch64 maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu --zig
 
-build-nmap:
-  PKG_CONFIG_SYSROOT_DIR="./cross-build-deps/" PKG_CONFIG_PATH="./cross-build-deps/usr/lib/pkgconfig" aarch64-linux-gnu-gcc -Os -I ./cross-build-deps/usr/include/python3.12 -o nmap nmap.c -L./cross-build-deps/usr/lib/ -lpython3.12 -L/usr/aarch64-linux-gnu/lib/ -lpthread -L/usr/aarch64-linux-gnu/lib/ -lm -L/usr/aarch64-linux-gnu/lib/ -lutil -L/usr/aarch64-linux-gnu/lib/ -ldl --sysroot=./cross-build-deps/
+build-release:
+  # PKG_CONFIG_SYSROOT_DIR=/opt/ArchARM maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
+  PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/aarch64 maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu --zig --release
 
-ssh:
-  ssh root@192.168.1.55
+setup-aarch64:
+  mkdir -p ./cross-build-deps/aarch64/
+  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/systemd-libs-256.7-1-aarch64.pkg.tar.xz 
+  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/gcc-libs-14.1.1+r1+g43b730b9134-1-aarch64.pkg.tar.xz
+  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/glibc-2.39+r52+gf8e4623421-1-aarch64.pkg.tar.xz
+  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/linux-api-headers-6.10-1-aarch64.pkg.tar.xz
+  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/python-3.12.7-1-aarch64.pkg.tar.xz
+  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/libcap-2.71-1-aarch64.pkg.tar.xz
+  cd ./cross-build-deps/aarch64; for f in $(ls *.pkg.tar.xz); do echo "extracting archiver: $f"; tar xf $f && rm $f; done
 
 new-window NAME CMD:
   tmux new-w -t midi-tracker -n "{{NAME}}"
