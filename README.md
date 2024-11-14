@@ -2,13 +2,9 @@
 
 A midi tracker for linux powered handheld retro emulation handhelds such as the Trimui Smart Pro running custom [Knulli](https://knulli.org/) firmware.
 
-## TODO
-
-- [x] have all rendering handled by the python side. rust code should only output on state changes.
-
 ## Statefull Rewrite
 
-Goal: hande state, audio syntheis, and Midi, in rust. handle display and graphics in python.
+Goal: handle: state, audio syntheis, and Midi, in rust. handle display and graphics in python. rust will send state to python and python will parse.
 
 ## Screens
 
