@@ -1,7 +1,7 @@
 use crate::{
     pygame_coms::{DisplayCursor, Index, Note, Screen, Song, TrackerCommand},
     tracker_state::{AllChains, AllInstruments, AllPhrases},
-    ScreenState,
+    ExitMenuState, ScreenState,
 };
 use bevy::{
     input::gamepad::{GamepadConnection, GamepadEvent},
@@ -20,7 +20,10 @@ impl Plugin for ControlsPlugin {
             .insert_resource(LastAdded::default())
             .init_resource::<NextScreen>()
             .add_systems(Update, gamepad_connections)
-            .add_systems(Update, screen_change);
+            .add_systems(
+                Update,
+                screen_change.run_if(not(in_state(ExitMenuState::Opened))),
+            );
         // .add_systems(Update, gamepad_input);
     }
 }
@@ -233,6 +236,7 @@ fn update_state(
     }
 }
 
+/// Handles switching between tabs in the menu.
 fn screen_change(
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,

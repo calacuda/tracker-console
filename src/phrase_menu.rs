@@ -2,7 +2,7 @@ use crate::{
     controls::{LastAdded, MyGamepad},
     pygame_coms::{DisplayCursor, Index, Instrument, Note, Screen},
     tracker_state::{AllInstruments, AllPhrases, StateUpdated},
-    ScreenState,
+    ExitMenuState, ScreenState,
 };
 use bevy::{log::*, prelude::*};
 use std::ops::DerefMut;
@@ -23,16 +23,47 @@ impl Plugin for PhraseMenuPlugin {
             .add_event::<EditNote>()
             .add_event::<EditInst>()
             .add_event::<EditCmd>()
-            .add_systems(Update, edit_note.run_if(in_state(ScreenState::EditPhrase)))
-            .add_systems(Update, edit_inst.run_if(in_state(ScreenState::EditPhrase)))
-            .add_systems(Update, edit_cmd.run_if(in_state(ScreenState::EditPhrase)))
-            .add_systems(Update, movement.run_if(in_state(ScreenState::EditPhrase)))
-            .add_systems(Update, set_select.run_if(in_state(ScreenState::EditPhrase)))
             .add_systems(
                 Update,
-                change_entry.run_if(in_state(ScreenState::EditPhrase)),
+                edit_note
+                    .run_if(in_state(ScreenState::EditPhrase))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
             )
-            .add_systems(Update, rm.run_if(in_state(ScreenState::EditPhrase)))
+            .add_systems(
+                Update,
+                edit_inst
+                    .run_if(in_state(ScreenState::EditPhrase))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                edit_cmd
+                    .run_if(in_state(ScreenState::EditPhrase))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                movement
+                    .run_if(in_state(ScreenState::EditPhrase))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                set_select
+                    .run_if(in_state(ScreenState::EditPhrase))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                change_entry
+                    .run_if(in_state(ScreenState::EditPhrase))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                rm.run_if(in_state(ScreenState::EditPhrase))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
             // .add_systems(Update, play.run_if(in_state(ScreenState::EditSong)))
             .add_systems(OnEnter(ScreenState::EditPhrase), set_phrase_index)
             .add_systems(OnEnter(ScreenState::EditPhrase), set_selected)

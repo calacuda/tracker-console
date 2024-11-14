@@ -2,7 +2,7 @@ use crate::{
     controls::{LastAdded, MyGamepad},
     pygame_coms::{DisplayCursor, Index, Phrase, Screen},
     tracker_state::{AllChains, AllPhrases, StateUpdated},
-    ScreenState,
+    ExitMenuState, ScreenState,
 };
 use bevy::{log::*, prelude::*};
 
@@ -13,15 +13,36 @@ impl Plugin for ChainMenuPlugin {
         debug!("tracker_backend::controls::Chain Menu Plugin loaded");
 
         app.init_resource::<ChainIndex>()
-            .add_systems(Update, set_phrase.run_if(in_state(ScreenState::EditChain)))
-            // .add_systems(Update, add_phrase.run_if(in_state(ScreenState::EditChain)))
-            .add_systems(Update, movement.run_if(in_state(ScreenState::EditChain)))
-            .add_systems(Update, set_select.run_if(in_state(ScreenState::EditChain)))
             .add_systems(
                 Update,
-                change_phrase.run_if(in_state(ScreenState::EditChain)),
+                set_phrase
+                    .run_if(in_state(ScreenState::EditChain))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
             )
-            .add_systems(Update, rm.run_if(in_state(ScreenState::EditChain)))
+            // .add_systems(Update, add_phrase.run_if(in_state(ScreenState::EditChain)))
+            .add_systems(
+                Update,
+                movement
+                    .run_if(in_state(ScreenState::EditChain))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                set_select
+                    .run_if(in_state(ScreenState::EditChain))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                change_phrase
+                    .run_if(in_state(ScreenState::EditChain))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
+            .add_systems(
+                Update,
+                rm.run_if(in_state(ScreenState::EditChain))
+                    .run_if(not(in_state(ExitMenuState::Opened))),
+            )
             // .add_systems(Update, play.run_if(in_state(ScreenState::EditSong)))
             .add_systems(OnEnter(ScreenState::EditChain), set_selected)
             .add_systems(OnEnter(ScreenState::EditChain), set_phrase_index)

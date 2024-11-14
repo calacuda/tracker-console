@@ -2,7 +2,7 @@ use crate::{
     controls::{LastAdded, MyGamepad},
     pygame_coms::{Chain, DisplayCursor, Song},
     tracker_state::{AllChains, StateUpdated},
-    ScreenState,
+    ExitMenuState, ScreenState,
 };
 use bevy::{log::*, prelude::*};
 use std::ops::DerefMut;
@@ -13,13 +13,42 @@ impl Plugin for SongMenuPlugin {
     fn build(&self, app: &mut App) {
         debug!("tracker_backend::controls::Song loaded");
 
-        app.add_systems(Update, set_chain.run_if(in_state(ScreenState::EditSong)))
-            .add_systems(Update, add_chain.run_if(in_state(ScreenState::EditSong)))
-            .add_systems(Update, movement.run_if(in_state(ScreenState::EditSong)))
-            .add_systems(Update, set_select.run_if(in_state(ScreenState::EditSong)))
-            .add_systems(Update, change_chain.run_if(in_state(ScreenState::EditSong)))
-            .add_systems(Update, rm.run_if(in_state(ScreenState::EditSong)))
-            .add_systems(OnEnter(ScreenState::EditSong), set_selected);
+        app.add_systems(
+            Update,
+            set_chain
+                .run_if(in_state(ScreenState::EditSong))
+                .run_if(not(in_state(ExitMenuState::Opened))),
+        )
+        .add_systems(
+            Update,
+            add_chain
+                .run_if(in_state(ScreenState::EditSong))
+                .run_if(not(in_state(ExitMenuState::Opened))),
+        )
+        .add_systems(
+            Update,
+            movement
+                .run_if(in_state(ScreenState::EditSong))
+                .run_if(not(in_state(ExitMenuState::Opened))),
+        )
+        .add_systems(
+            Update,
+            set_select
+                .run_if(in_state(ScreenState::EditSong))
+                .run_if(not(in_state(ExitMenuState::Opened))),
+        )
+        .add_systems(
+            Update,
+            change_chain
+                .run_if(in_state(ScreenState::EditSong))
+                .run_if(not(in_state(ExitMenuState::Opened))),
+        )
+        .add_systems(
+            Update,
+            rm.run_if(in_state(ScreenState::EditSong))
+                .run_if(not(in_state(ExitMenuState::Opened))),
+        )
+        .add_systems(OnEnter(ScreenState::EditSong), set_selected);
     }
 }
 

@@ -33,6 +33,13 @@ pub enum PlayingState {
     NotPlaying,
 }
 
+#[derive(States, Default, Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ExitMenuState {
+    Opened,
+    #[default]
+    Closed,
+}
+
 pub mod chain_menu;
 pub mod config;
 pub mod controls;
@@ -161,6 +168,7 @@ fn start(io: RustIPC) {
         // .insert_state(ScreenData::Song)
         .init_state::<ScreenState>()
         .init_state::<PlayingState>()
+        .init_state::<ExitMenuState>()
         .set_runner(build_runner(io))
         .run();
 

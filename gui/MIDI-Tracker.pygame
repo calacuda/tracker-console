@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import pygame
 from pygame.rect import Rect
-from tracker_backend import SongRow, InputCMD, Button, ScreenData, State, get_config, run as run_tracker
+from tracker_backend import InputCMD, Button, ScreenData, State, get_config, run as run_tracker
 from pathlib import Path
 from midi_tracker.phrase_tab import PhrasesTab
 from midi_tracker._logging import get_logger
@@ -311,7 +311,6 @@ def proccess_state_change():
     else:
         return
 
-    # TODO: display state on screen
     match state.screen:
         case ScreenData.Song(_):
             log.info("Song tab state recieved")
