@@ -22,6 +22,3 @@ Goal: handle: state, audio syntheis, and Midi, in rust. handle display and graph
 5. Instrument Screen: edit differnet instruments.
 6. Settings Screen: settings, ex, bass/lead 1/lead 2 octave offset & default instrument.
 
-## Song Screen
-
-
