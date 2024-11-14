@@ -52,7 +52,7 @@ jobs:
           echo \"PKG_CONFIG_SYSROOT_DIR -> $PKG_CONFIG_SYSROOT_DIR\";
           echo \"ls:\";
           ls -la;
-          pipx install just;
+          pipx install rust-just;
           echo \"$> just setup-${{ matrix.platform.target }}\";
           just setup-${{ matrix.platform.target }};
           "
