@@ -42,10 +42,16 @@ jobs:
         with:
           python-version: 3.x
       - name: Build wheels
+        env:
+          PKG_CONFIG_SYSROOT_DIR: ./cross-build-deps/${{ matrix.platform.target }}
         uses: PyO3/maturin-action@v1
         with:
           before-script-linux: "
-          sudo apt install libudev1 libudev-dev
+          echo "cwd -> $(pwd)"
+          echo "PKG_CONFIG_SYSROOT_DIR -> $PKG_CONFIG_SYSROOT_DIR"
+          cargo install just
+          echo "$> just setup-${{ matrix.platform.target }}"
+          just setup-${{ matrix.platform.target }}
           "
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --zig
