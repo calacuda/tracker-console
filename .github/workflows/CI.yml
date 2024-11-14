@@ -9,6 +9,7 @@ on:
   push:
     branches:
       - main
+      - stepper-rewrite
     tags:
       - '*'
   pull_request:
