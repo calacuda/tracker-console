@@ -27,12 +27,12 @@ build-release:
 
 setup-aarch64:
   mkdir -p ./cross-build-deps/aarch64/
-  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/systemd-libs-256.7-1-aarch64.pkg.tar.xz 
-  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/gcc-libs-14.1.1+r1+g43b730b9134-1-aarch64.pkg.tar.xz
-  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/glibc-2.39+r52+gf8e4623421-1-aarch64.pkg.tar.xz
-  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/linux-api-headers-6.10-1-aarch64.pkg.tar.xz
-  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/python-3.12.7-1-aarch64.pkg.tar.xz
-  wget -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/libcap-2.71-1-aarch64.pkg.tar.xz
+  wget -nv -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/systemd-libs-256.7-1-aarch64.pkg.tar.xz 
+  wget -nv -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/gcc-libs-14.1.1+r1+g43b730b9134-1-aarch64.pkg.tar.xz
+  wget -nv -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/glibc-2.39+r52+gf8e4623421-1-aarch64.pkg.tar.xz
+  wget -nv -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/linux-api-headers-6.10-1-aarch64.pkg.tar.xz
+  wget -nv -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/python-3.12.7-1-aarch64.pkg.tar.xz
+  wget -nv -P ./cross-build-deps/aarch64/ http://mirror.archlinuxarm.org/aarch64/core/libcap-2.71-1-aarch64.pkg.tar.xz
   cd ./cross-build-deps/aarch64; for f in $(ls *.pkg.tar.xz); do echo "extracting archiver: $f"; tar xf $f && rm $f; done
 
 new-window NAME CMD:

@@ -43,12 +43,14 @@ jobs:
           python-version: 3.x
       - name: Build wheels
         env:
-          PKG_CONFIG_SYSROOT_DIR: ./cross-build-deps/${{ matrix.platform.target }}
+          PKG_CONFIG_SYSROOT_DIR: /home/runner/work/tracker-console/tracker-console/cross-build-deps/${{ matrix.platform.target }}
         uses: PyO3/maturin-action@v1
         with:
           before-script-linux: "
           echo \"cwd -> $(pwd)\";
           echo \"PKG_CONFIG_SYSROOT_DIR -> $PKG_CONFIG_SYSROOT_DIR\";
+          echo \"ls:\";
+          ls -la;
           cargo install just;
           echo \"$> just setup-${{ matrix.platform.target }}\";
           just setup-${{ matrix.platform.target }};
