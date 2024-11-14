@@ -9,7 +9,7 @@ on:
   push:
     branches:
       - main
-      - stepper-rewrite
+      # - stepper-rewrite
     tags:
       - '*'
   pull_request:
@@ -60,6 +60,7 @@ jobs:
           args: --release --out dist --find-interpreter --zig
           sccache: 'true'
           manylinux: auto
+          # rust-toolchain: nightly
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
