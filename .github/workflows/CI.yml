@@ -45,7 +45,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           before-script-linux: "
-          apt install libudev libudev-dev
+          sudo apt install libudev libudev-dev
           "
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter --zig
