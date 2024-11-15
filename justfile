@@ -13,16 +13,20 @@ hardware-test: build-debug flash-adb
 
 flash-hardware: build-release flash-adb
 
+hardware-errors:
+  adb shell cat /userdata/roms/ports/MIDI-Tracker/out.txt
+
+hardware-reboot:
+  adb reboot
+
 flash-adb:
-  adb push ./{gui/{MIDI-Tracker.pygame,midi_tracker},dist/tracker_backend-0.1.0-cp311-cp311-manylinux_2_34_aarch64.whl} /userdata/roms/ports/MIDI-Tracker/
+  adb push ./{gui/{MIDI-Tracker.pygame,midi_tracker},dist/tracker_backend-0.1.0-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl} /userdata/roms/ports/MIDI-Tracker/
   adb shell "cd /userdata/roms/ports/MIDI-Tracker/; .venv/bin/python -m pip install --force-reinstall --no-index ./tracker_backend-*aarch64.whl"
 
 build-debug:
-  # PKG_CONFIG_SYSROOT_DIR=/opt/ArchARM maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
   PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/aarch64 maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu --zig
 
 build-release:
-  # PKG_CONFIG_SYSROOT_DIR=/opt/ArchARM maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
   PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/aarch64 maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu --zig --release
 
 setup-aarch64:

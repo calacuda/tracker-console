@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import pygame
 from pygame.rect import Rect
 from tracker_backend import InputCMD, Button, ScreenData, State, get_config, run as run_tracker
@@ -98,112 +97,9 @@ def clear_screen():
     screen.fill((30, 30, 46))
 
 
-# def fps():
-#     fps = f"{round(clock.get_fps(), 2)}"
-#
-#     if len(fps) > 3:
-#         # while len(fps.split(".")[0]) < 3:
-#         while fps[3] != "." and len(fps) < 6:
-#             fps = f" {fps}"
-#
-#     fps = f"fps => {fps}"
-#     font = fonts[0]
-#     color = (25, 50, 100)
-#     display = font.render(
-#         fps, True, color)
-#     textRect = display.get_rect()
-#
-#     x, y = round(SCREEN_WIDTH / 2), round(SCREEN_HEIGHT / 2)
-#
-#     textRect.center = (x, y)
-#     clear_screen()
-#
-#     screen.blit(display, textRect)
-
-
-# def draw_text(text):
-#     arg = text.text
-#     font = fonts[0]
-#     color = text.color
-#     display = font.render(
-#         arg, True, color)
-#     textRect = display.get_rect()
-#
-#     x, y = text.ancor
-#
-#     textRect.center = (x, y)
-#
-#     if not text.center:
-#         textRect.left = x
-#
-#     screen.blit(display, textRect)
-
-
-# def draw_rect(rect_cmd):
-#     # arg = text.text
-#     # font = fonts[0]
-#     color = rect_cmd.fill_color
-#     # display = font.render(
-#     #     arg, True, color)
-#     # textRect = display.get_rect()
-#
-#     # x, y = text.ancor
-#
-#     # textRect.center = (x, y)
-#     (left, top) = rect_cmd.ancor
-#     (width, height) = rect_cmd.size
-#
-#     rect = Rect((top, left), (width, height))
-#
-#     if rect_cmd.center:
-#         rect.center = (left, top)
-#
-#     # print(f"drawing rect => Rect(({top}, {left}), ({width}, {height}))")
-#
-#     pygame.draw.rect(screen, color, rect)
-#
-#     # screen.blit(display, textRect)
-
-
 clear_screen()
 
-# tracker_ipc = run_tracker(SCREEN_WIDTH, SCREEN_HEIGHT, THIS_DIR)
 tracker_ipc = run_tracker()
-
-
-# def check_controller_input(event):
-#     if event.type == pygame.JOYHATMOTION and event.value == (0, 1):
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
-#     elif event.type == pygame.JOYHATMOTION and event.value == (0, -1):
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.Down))
-#     elif event.type == pygame.JOYHATMOTION and event.value == (-1, 0):
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.Left))
-#     elif event.type == pygame.JOYHATMOTION and event.value == (1, 0):
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.Right))
-#     elif event.type == pygame.JOYBUTTONUP and event.button == 1:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.A))
-#     elif event.type == pygame.JOYBUTTONUP and event.button == 0:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.B))
-#     elif event.type == pygame.JOYBUTTONUP and event.button == 3:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.X))
-#     elif event.type == pygame.JOYBUTTONUP and event.button == 4:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.Y))
-#     elif event.type == pygame.JOYBUTTONUP and event.button == 7:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.Start))
-#     elif event.type == pygame.JOYBUTTONDOWN and event.button == 6:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.Select))
-#     # # elif event.type == pygame.JOYBUTTONUP and event.button == 6:
-#     # #     # print("RM")
-#     # #     app.resources[ResourceID.KEY_SCAN] = [
-#     # #         button for button in app.resources[ResourceID.KEY_SCAN] if button != Buttons.SELECT]
-#     elif event.type == pygame.JOYBUTTONUP and event.button == 4:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.LBump))
-#     elif event.type == pygame.JOYBUTTONUP and event.button == 4:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.RBump))
-#     elif event.type == pygame.JOYAXISMOTION and event.axis == 4 and event.value < 0.5:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.LTrig))
-#     elif event.type == pygame.JOYAXISMOTION and event.axis == 5 and event.value < 0.5:
-#         tracker_ipc.send(InputCMD.ButtonPress(Button.RTrig))
 
 
 def check_keeb_input(event):
@@ -250,28 +146,6 @@ def handle_pygame_events():
     return True
 
 
-# def proccess_cmd():
-#     cmds = tracker_ipc.recv_all()
-#
-#     for cmd in cmds:
-#         if isinstance(cmd, RenderCMD.Text):
-#             draw_text(cmd)
-#         elif isinstance(cmd, RenderCMD.Line):
-#             print("drawing Lines not yet implemented")
-#         elif isinstance(cmd, RenderCMD.Lines):
-#             print("drawing bendy Lines not yet implemented")
-#         elif isinstance(cmd, RenderCMD.Rect):
-#             # print("drawing Rects not yet implemented")
-#             draw_rect(cmd)
-#         elif isinstance(cmd, RenderCMD.Circle):
-#             print("Circle")
-#             print("drawing Circles not yet implemented")
-#         elif isinstance(cmd, RenderCMD.Clear):
-#             print("Clear recvieved, clearing screen.")
-#             clear_screen()~/Code/python/py_bevy
-
-
-# def draw_song(state: State, rows: list[SongRow]):
 def draw_song(state: State):
     log.debug("drawing Song tab")
     tab = SongTab(state, PygameState())
