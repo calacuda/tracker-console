@@ -23,8 +23,8 @@ CONFIG = get_config()
 
 pygame.init()
 # pygame.joystick.init()
-controller_found = False
-joy = None
+# controller_found = False
+# joy = None
 screen = pygame.display.set_mode(SCREEN_SIZE)
 pygame.font.init()
 fonts = [pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 45),
@@ -102,34 +102,7 @@ clear_screen()
 tracker_ipc = run_tracker()
 
 
-def check_keeb_input(event):
-    # print("running in keeb mode")
-
-    if event.type == pygame.KEYDOWN and event.key == pygame.K_UP:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.Up))
-    elif event.type == pygame.KEYDOWN and event.key == pygame.K_DOWN:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.Down))
-    elif event.type == pygame.KEYDOWN and event.key == pygame.K_LEFT:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.Left))
-    elif event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.Right))
-    elif event.type == pygame.KEYDOWN and event.key == pygame.K_x:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.A))
-    elif event.type == pygame.KEYDOWN and event.key == pygame.K_z:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.B))
-    elif event.type == pygame.KEYDOWN and event.key == pygame.K_q:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.LBump))
-    elif event.type == pygame.KEYDOWN and event.key == pygame.K_e:
-        tracker_ipc.send(InputCMD.ButtonPress(Button.RBump))
-
-
 def handle_pygame_events():
-    global joy
-    global controller_found
-
-    # if controller_found:
-    # print("controller mode")
-
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             log.warning("QUITTING")
@@ -137,11 +110,7 @@ def handle_pygame_events():
             pygame.quit()
             return False
         elif event.type == pygame.JOYDEVICEADDED:
-            joy = pygame.joystick.Joystick(event.device_index)
-            controller_found = True
-
-        if not controller_found:
-            check_keeb_input(event)
+            pass
 
     return True
 

@@ -26,8 +26,8 @@ pub enum Button {
     Menu,
 }
 
-#[pyclass(module = "tracker_backend", get_all)]
-#[derive(Debug, Clone, PartialEq)]
+#[pyclass(module = "tracker_backend", eq, get_all)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum InputCMD {
     /// Tells the executor to exit
     Exit(),
