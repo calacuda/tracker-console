@@ -1,20 +1,15 @@
 [package]
-name = "tracker_backend"
+name = "midi-band"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
-name = "tracker_backend"
-crate-type = ["cdylib"]
+name = "midi_band"
 
 [dependencies]
-# tracker-backend = { version = "0.1.0", path = "tracker-backend" }
-bevy = { version = "0.14.2", default-features = false, features = ["bevy_gilrs", "bevy_state", "multi_threaded"] }
-# log = "0.4.22"
+# bevy = { version = "0.14.2", default-features = false, features = ["bevy_gilrs", "bevy_state", "multi_threaded"] }
+bevy = "0.14.2"
 crossbeam = { version = "0.8.4", features = ["crossbeam-channel", "nightly"] }
-# tracker-lib = { version = "0.1.0", path = "common-lib", features = ["bevy"] }
-# fern = { version = "0.6.2", features = ["colored"] }
-pyo3 = "0.22.6"
 anyhow = { version = "1.0.93", features = ["backtrace"] }
 serde = { version = "1.0.214", features = ["derive"] }

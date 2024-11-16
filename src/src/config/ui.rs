@@ -1,11 +1,10 @@
-use pyo3::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 pub type Color = [u8; 3];
 pub type Bpm = u8;
 
-#[pyclass(module = "tracker_backend", get_all)]
+// #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, PartialEq)]
 pub struct TrackerConfig {
     pub font: FontConfig,
@@ -13,7 +12,7 @@ pub struct TrackerConfig {
     pub ui: UiConfig,
 }
 
-#[pyclass(module = "tracker_backend", get_all)]
+// #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Eq, Hash, PartialEq)]
 pub struct FontConfig {
     pub name: String,
@@ -21,7 +20,7 @@ pub struct FontConfig {
     pub size: Vec<usize>,
 }
 
-#[pyclass(module = "tracker_backend", get_all)]
+// #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Copy, Eq, Hash, PartialEq)]
 pub struct ColorsConfig {
     pub back_ground: Color,
@@ -33,7 +32,7 @@ pub struct ColorsConfig {
     pub note_held: Color,
 }
 
-#[pyclass(module = "tracker_backend", get_all)]
+// #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Copy, PartialEq)]
 pub struct UiConfig {
     pub header: f64,
@@ -42,7 +41,7 @@ pub struct UiConfig {
     pub tab: TabUiConf,
 }
 
-#[pyclass(module = "tracker_backend", get_all)]
+// #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Copy, PartialEq)]
 pub struct MenuUiConf {
     pub width: f64,
@@ -53,7 +52,7 @@ pub struct MenuUiConf {
     pub menu_map: f64,
 }
 
-#[pyclass(module = "tracker_backend", get_all)]
+// #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Copy, PartialEq)]
 pub struct TabUiConf {
     pub width: f64,
@@ -62,7 +61,7 @@ pub struct TabUiConf {
     pub row_height: f64,
 }
 
-#[pyfunction]
+// #[pyfunction]
 pub fn get_config() -> TrackerConfig {
     let mut config = TrackerConfig::default();
     // config.colors.text = [10, 100, 20];

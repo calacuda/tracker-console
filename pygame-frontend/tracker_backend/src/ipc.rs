@@ -17,12 +17,6 @@ pub struct RustIPC {
     pub tx: Sender<State>,
 }
 
-// #[derive(Debug, Clone)]
-// pub struct RTX<RX, TX> {
-//     rx: Receiver<RX>,
-//     tx: Sender<TX>,
-// }
-
 #[pymethods]
 impl TrackerIPC {
     fn recv(&self) -> Option<State> {
