@@ -387,7 +387,7 @@ impl Plugin for GraphStatePlugin {
                 Update,
                 move_cursor
                     .run_if(in_state(ScreenState::Graph))
-                    .run_if(node_placed),
+                    .run_if(not(node_placed)),
             )
             .add_systems(
                 Update,
@@ -413,15 +413,6 @@ impl Plugin for GraphStatePlugin {
             );
     }
 }
-
-// fn allow_movement(cursor: Res<Cursor>) -> bool {
-//     let CursorState::Holding(MaybeTrackerNode::PlacedPreNode(_)) = cursor.state else {
-//         return false;
-//     };
-//
-//     true
-//
-// }
 
 fn node_placed(cursor: Res<Cursor>) -> bool {
     let CursorState::Holding(MaybeTrackerNode::PlacedPreNode(_)) = cursor.state else {
