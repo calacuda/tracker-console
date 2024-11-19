@@ -13,3 +13,4 @@ bevy = "0.14.2"
 crossbeam = { version = "0.8.4", features = ["crossbeam-channel", "nightly"] }
 anyhow = { version = "1.0.93", features = ["backtrace"] }
 serde = { version = "1.0.214", features = ["derive"] }
+strum = { version = "0.26.3", features = ["derive"] }
