@@ -464,13 +464,59 @@ fn set_pattern_args(
     buttons: &Res<ButtonInput<GamepadButton>>,
     pattern_i: &mut Option<PatternIndex>,
 ) -> bool {
+    if pattern_i.is_none() {
+        *pattern_i = Some(0);
+        return false;
+    };
+
     let a = GamepadButton {
         gamepad,
         button_type: GamepadButtonType::East,
     };
 
-    // TODO: up/down = +/- 1
-    // TODO: left/right = +/- 16
+    // up/down = +/- 1
+    let up = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadUp,
+    };
+    let down = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadDown,
+    };
+
+    if buttons.just_released(up) {
+        pattern_i.map(|ref mut i| *i += 1);
+    }
+
+    if buttons.just_released(down) {
+        pattern_i.map(|ref mut i| {
+            if *i > 0 {
+                *i -= 1
+            }
+        });
+    }
+
+    // left/right = +/- 16
+    let left = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadLeft,
+    };
+    let right = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadRight,
+    };
+
+    if buttons.just_released(left) {
+        pattern_i.map(|ref mut i| {
+            if *i > 15 {
+                *i -= 16
+            }
+        });
+    }
+
+    if buttons.just_released(right) {
+        pattern_i.map(|ref mut i| *i += 16);
+    }
 
     buttons.just_released(a) && pattern_i.is_some()
 }
