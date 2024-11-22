@@ -439,6 +439,7 @@ fn set_tracker_node_args(
         return;
     };
 
+    // TODO: or together the function calls
     let should_set = match pre_node {
         PlacedPreNode::Pattern(ref mut pattern_i) => set_pattern_args(gamepad, &buttons, pattern_i),
         PlacedPreNode::Teleport { x: _, y: _ } => {
@@ -457,6 +458,13 @@ fn set_tracker_node_args(
         graph[*cursor] = Some((*pre_node).into());
         next_state.set(GraphSubState::Neuteral)
     }
+}
+
+fn set_teleport_args(
+    gamepad: Gamepad,
+    buttons: &Res<ButtonInput<GamepadButton>>,
+    pre_node: &mut PlacedPreNode,
+) -> bool {
 }
 
 fn set_pattern_args(
