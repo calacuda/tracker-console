@@ -12,6 +12,7 @@ tmux:
   # @just new-window "GUI" "nv ./gui/MIDI-Tracker.pygame +'setfiletype python'"
   @just new-window "Edit" ""
   @just new-window "Run" ""
-  @just new-window "git" "git status"
+  @just new-window "Git" "git status"
+  @just new-window "Misc" ""
   tmux a -t midi-tracker
 
