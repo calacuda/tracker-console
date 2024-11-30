@@ -543,7 +543,6 @@ fn set_conditional_goto(
     my_gamepad: Option<Res<MyGamepad>>,
     mut last_move: ResMut<LastMove>,
 ) {
-    // TODO: write this by allowing the cursor to move.
     let CursorState::Holding(MaybeTrackerNode::PlacedPreNode(PlacedPreNode::Conditional {
         op: (_, true),
         var: (_, true),
@@ -596,14 +595,18 @@ fn set_conditional_goto(
 
         if button == 0 {
             // display.y -= 1;
+            goto.y -= 1;
             move_up(&mut display, &mut cursor, false)
         } else if button == 1 {
             // display.y += 1;
+            goto.y += 1;
             move_down(&mut display, &mut cursor, false)
         } else if button == 2 {
             // display.x -= 1;
+            goto.x -= 1;
             move_left(&mut display, &mut cursor, false)
         } else if button == 3 {
+            goto.x += 1;
             move_right(&mut display, &mut cursor, false)
             // display.x -= 1;
         } else {
@@ -766,7 +769,7 @@ fn set_conditional_args(
         {
             (Box::new(op), done)
         } else if let PlacedPreNode::Conditional {
-            op: _,
+            op: (_, true),
             var: (ref mut var, ref mut done),
             goto: _,
         } = pre_node
@@ -774,14 +777,13 @@ fn set_conditional_args(
         {
             (Box::new(var), done)
         } else if let PlacedPreNode::Conditional {
-            op: _,
-            var: _,
-            goto: (ref mut goto, ref mut done),
+            op: (_, true),
+            var: (_, true),
+            goto: (_, done),
         } = pre_node
             && !*done
         {
-            // Box::new(goto.into())
-            // set_conditional_goto(gamepad, buttons, goto, done);
+            // setting conditional "goto" in another system
             return;
         } else {
             return;
@@ -918,6 +920,19 @@ fn place_tracker_node(
         && buttons.just_released(a)
     {
         cursor.state = CursorState::Holding(MaybeTrackerNode::PlacedPreNode(node_type.into()));
+        if let Cursor {
+            pos,
+            display: _,
+            state:
+                CursorState::Holding(MaybeTrackerNode::PlacedPreNode(PlacedPreNode::Conditional {
+                    op: _,
+                    var: _,
+                    goto,
+                })),
+        } = cursor.deref_mut()
+        {
+            goto.0 = pos.clone();
+        }
         // next_state.set(GraphSubState::EditArgs);
     }
 }
