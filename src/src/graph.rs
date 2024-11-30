@@ -6,6 +6,26 @@ use std::{
 };
 use strum::{EnumIter, IntoEnumIterator};
 
+pub trait Incrementable {
+    fn get_big_n(&self) -> usize {
+        16
+    }
+
+    fn small_inc(&mut self);
+    fn big_inc(&mut self) {
+        for _ in 0..self.get_big_n() {
+            self.small_inc();
+        }
+    }
+
+    fn small_dec(&mut self);
+    fn big_dec(&mut self) {
+        for _ in 0..self.get_big_n() {
+            self.small_dec();
+        }
+    }
+}
+
 #[derive(Resource, Clone, Copy, Debug)]
 pub struct LastMove(usize, Instant);
 
@@ -21,7 +41,7 @@ pub struct Point {
     pub y: usize,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, EnumIter)]
 pub enum NodeVar {
     SeenSinceStart,
     // ContinuedFrom,
@@ -29,12 +49,82 @@ pub enum NodeVar {
     NFalses,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+impl Incrementable for &mut NodeVar {
+    fn get_big_n(&self) -> usize {
+        1
+    }
+
+    fn small_inc(&mut self) {
+        // **self = match *self {
+        //     Operation::Mod => Operation::Lt,
+        //     Operation::Lt => Operation::Gt,
+        //     Operation::Gt => Operation::IntDiv,
+        //     Operation::IntDiv => Operation::Mod,
+        // }
+        let all_ops: Vec<NodeVar> = NodeVar::iter().collect();
+        let me = self.clone();
+
+        for (i, op) in all_ops.iter().enumerate() {
+            if *op == me {
+                // info!("op and self are the same");
+                **self = all_ops[(i + 1) % all_ops.len()];
+            }
+        }
+    }
+
+    fn small_dec(&mut self) {
+        let all_ops: Vec<NodeVar> = NodeVar::iter().collect();
+        let me = self.clone();
+
+        for (i, op) in all_ops.iter().enumerate() {
+            if *op == me {
+                **self = all_ops[if i > 0 { i - 1 } else { all_ops.len() - 1 }];
+            }
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, EnumIter)]
 pub enum Operation {
-    Gt,
-    Lt,
     Mod,
+    Lt,
+    Gt,
     IntDiv,
+}
+
+impl Incrementable for &mut Operation {
+    fn get_big_n(&self) -> usize {
+        1
+    }
+
+    fn small_inc(&mut self) {
+        // **self = match *self {
+        //     Operation::Mod => Operation::Lt,
+        //     Operation::Lt => Operation::Gt,
+        //     Operation::Gt => Operation::IntDiv,
+        //     Operation::IntDiv => Operation::Mod,
+        // }
+        let all_ops: Vec<Operation> = Operation::iter().collect();
+        let me = self.clone();
+
+        for (i, op) in all_ops.iter().enumerate() {
+            if *op == me {
+                // info!("op and self are the same");
+                **self = all_ops[(i + 1) % all_ops.len()];
+            }
+        }
+    }
+
+    fn small_dec(&mut self) {
+        let all_ops: Vec<Operation> = Operation::iter().collect();
+        let me = self.clone();
+
+        for (i, op) in all_ops.iter().enumerate() {
+            if *op == me {
+                **self = all_ops[if i > 0 { i - 1 } else { all_ops.len() - 1 }];
+            }
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Default)]
@@ -130,16 +220,16 @@ impl From<PlacedPreNode> for TrackerNode {
                 next: None,
             },
             PlacedPreNode::Teleport {
-                x: Some(x),
-                y: Some(y),
+                x: (x, true),
+                y: (y, true),
             } => Self {
                 node_dat: TrackerNodeData::Teleport(Point { x, y }),
                 next: None,
             },
             PlacedPreNode::Conditional {
-                op: Some(op),
-                var: Some(var),
-                goto: Some(goto),
+                op: (op, true),
+                var: (var, true),
+                goto: (goto, true),
             } => Self {
                 node_dat: TrackerNodeData::Conditional(Conditional {
                     op,
@@ -190,13 +280,13 @@ impl TrackerNode {
 pub enum PlacedPreNode {
     Pattern(Option<PatternIndex>),
     Conditional {
-        op: Option<Operation>,
-        var: Option<NodeVar>,
-        goto: Option<Point>,
+        op: (Operation, bool),
+        var: (NodeVar, bool),
+        goto: (Point, bool),
     },
     Teleport {
-        x: Option<usize>,
-        y: Option<usize>,
+        x: (usize, bool),
+        y: (usize, bool),
     },
 }
 
@@ -213,8 +303,8 @@ impl PlacedPreNode {
     fn should_set(&self) -> bool {
         match self {
             Self::Pattern(i) => i.is_some(),
-            Self::Teleport { x, y } => x.is_some() && y.is_some(),
-            Self::Conditional { op, var, goto } => op.is_some() && var.is_some() && goto.is_some(),
+            Self::Teleport { x, y } => x.1 && y.1,
+            Self::Conditional { op, var, goto } => op.1 && var.1 && goto.1,
         }
     }
 }
@@ -223,11 +313,14 @@ impl From<TrackerNodeType> for PlacedPreNode {
     fn from(value: TrackerNodeType) -> Self {
         match value {
             TrackerNodeType::Pattern => Self::Pattern(None),
-            TrackerNodeType::Teleport => Self::Teleport { x: None, y: None },
+            TrackerNodeType::Teleport => Self::Teleport {
+                x: (0, false),
+                y: (0, false),
+            },
             TrackerNodeType::Conditional => Self::Conditional {
-                op: None,
-                var: None,
-                goto: None,
+                op: (Operation::Mod, false),
+                var: (NodeVar::SeenSinceStart, false),
+                goto: (Point { x: 0, y: 0 }, false),
             },
         }
     }
@@ -361,6 +454,7 @@ impl CursorState {
 #[derive(Resource, Clone, Copy, Debug)]
 pub struct Cursor {
     pub pos: Point,
+    pub display: Point,
     // pub node: MaybeTrackerNode,
     pub state: CursorState,
 }
@@ -369,6 +463,7 @@ impl Default for Cursor {
     fn default() -> Self {
         Self {
             pos: Point { x: 0, y: 0 },
+            display: Point { x: 0, y: 0 },
             // node: MaybeTrackerNode,
             state: CursorState::None,
         }
@@ -410,7 +505,21 @@ impl Plugin for GraphStatePlugin {
                 set_tracker_node_args
                     .run_if(in_state(GraphSubState::EditNode))
                     .run_if(node_placed),
-            );
+            )
+            .add_systems(
+                Update,
+                escape_tracker_node_args_set
+                    .run_if(in_state(GraphSubState::EditNode))
+                    .run_if(node_placed),
+            )
+            .add_systems(
+                Update,
+                set_conditional_goto
+                    .run_if(in_state(GraphSubState::EditNode))
+                    .run_if(node_placed),
+            )
+            .add_systems(OnEnter(ScreenState::Graph), default_cursor_state)
+            .add_systems(OnEnter(GraphSubState::Neuteral), reset_display_cursor);
     }
 }
 
@@ -420,6 +529,120 @@ fn node_placed(cursor: Res<Cursor>) -> bool {
     };
 
     true
+}
+
+fn reset_display_cursor(mut cursor: ResMut<Cursor>) {
+    cursor.display.x = cursor.pos.x;
+    cursor.display.y = cursor.pos.y;
+}
+
+fn set_conditional_goto(
+    mut cursor: ResMut<Cursor>,
+    mut display: ResMut<DisplayWindow>,
+    buttons: Res<ButtonInput<GamepadButton>>,
+    my_gamepad: Option<Res<MyGamepad>>,
+    mut last_move: ResMut<LastMove>,
+) {
+    // TODO: write this by allowing the cursor to move.
+    let CursorState::Holding(MaybeTrackerNode::PlacedPreNode(PlacedPreNode::Conditional {
+        op: (_, true),
+        var: (_, true),
+        goto: (ref mut goto, false),
+    })) = cursor.state
+    else {
+        return;
+    };
+
+    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+        // no gamepad is connected
+        return;
+    };
+
+    // move the cursor
+    let up = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadUp,
+    };
+    let down = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadDown,
+    };
+    let left = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadLeft,
+    };
+    let right = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadRight,
+    };
+
+    let pressed = [
+        buttons.pressed(up),
+        buttons.pressed(down),
+        buttons.pressed(left),
+        buttons.pressed(right),
+    ];
+
+    if pressed.iter().filter(|b| **b).count() != 1 {
+        // more then one dir button pressed
+        return;
+    }
+
+    if let Some(button) = pressed.iter().position(|b| *b)
+        && ((last_move.0 == button && last_move.1.elapsed() > Duration::from_secs_f64(0.2))
+            || (last_move.0 != button))
+    {
+        last_move.1 = Instant::now();
+
+        if button == 0 {
+            // display.y -= 1;
+            move_up(&mut display, &mut cursor, false)
+        } else if button == 1 {
+            // display.y += 1;
+            move_down(&mut display, &mut cursor, false)
+        } else if button == 2 {
+            // display.x -= 1;
+            move_left(&mut display, &mut cursor, false)
+        } else if button == 3 {
+            move_right(&mut display, &mut cursor, false)
+            // display.x -= 1;
+        } else {
+            error!("uknown movement button pressed");
+        }
+    }
+}
+
+/// resets the cursor state
+fn default_cursor_state(mut cursor: ResMut<Cursor>) {
+    cursor.state = CursorState::None;
+}
+
+/// return to a neuteral GraphSubState state on the press of the b button
+fn escape_tracker_node_args_set(
+    // mut graph: ResMut<Graph>,
+    cursor: Res<Cursor>,
+    buttons: Res<ButtonInput<GamepadButton>>,
+    my_gamepad: Option<Res<MyGamepad>>,
+    mut next_state: ResMut<NextState<GraphSubState>>,
+) {
+    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+        // no gamepad is connected
+        return;
+    };
+
+    let CursorState::Holding(MaybeTrackerNode::PlacedPreNode(_)) = cursor.state else {
+        return;
+    };
+
+    let b = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::South,
+    };
+
+    if buttons.just_released(b) {
+        // cursor.state = CursorState((*pre_node).into());
+        next_state.set(GraphSubState::Neuteral);
+    }
 }
 
 fn set_tracker_node_args(
@@ -439,32 +662,177 @@ fn set_tracker_node_args(
         return;
     };
 
-    // TODO: or together the function calls
-    let should_set = match pre_node {
-        PlacedPreNode::Pattern(ref mut pattern_i) => set_pattern_args(gamepad, &buttons, pattern_i),
-        PlacedPreNode::Teleport { x: _, y: _ } => {
-            todo!("teleport editing not written")
-        } // set_teleport_args(gamepad, &buttons, pre_node),
-        PlacedPreNode::Conditional {
-            op: _,
-            var: _,
-            goto: _,
-        } => {
-            todo!("Conditional editing not yet written")
-        } // set_teleport_args(gamepad, &buttons, pre_node),
-    };
+    if let PlacedPreNode::Pattern(ref mut pattern_i) = pre_node {
+        set_pattern_args(gamepad, &buttons, pattern_i);
+    }
+    set_teleport_args(gamepad, &buttons, pre_node);
+    set_conditional_args(gamepad, &buttons, pre_node);
 
-    if should_set {
+    if pre_node.should_set() {
         graph[*cursor] = Some((*pre_node).into());
         next_state.set(GraphSubState::Neuteral)
     }
 }
 
+/// handles setting the arguements for a teleport node
 fn set_teleport_args(
     gamepad: Gamepad,
     buttons: &Res<ButtonInput<GamepadButton>>,
     pre_node: &mut PlacedPreNode,
-) -> bool {
+) {
+    let to_set: (&mut usize, &mut bool) = if let PlacedPreNode::Teleport {
+        x: (ref mut x, ref mut set),
+        y: _,
+    } = pre_node
+        && !*set
+    {
+        (x, set)
+    } else if let PlacedPreNode::Teleport {
+        x: (_, true),
+        y: (ref mut y, ref mut set),
+    } = pre_node
+        && !*set
+    {
+        (y, set)
+    } else {
+        return;
+    };
+
+    let a = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::East,
+    };
+
+    if buttons.just_released(a) {
+        *to_set.1 = true;
+    }
+
+    // up/down = +/- 1
+    let up = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadUp,
+    };
+    let down = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadDown,
+    };
+
+    if buttons.just_released(up) {
+        *to_set.0 += 1;
+    }
+
+    if buttons.just_released(down) {
+        if *to_set.0 > 0 {
+            *to_set.0 -= 1
+        }
+    }
+
+    // left/right = +/- 16
+    let left = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadLeft,
+    };
+    let right = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadRight,
+    };
+
+    if buttons.just_released(left) {
+        if *to_set.0 > 15 {
+            *to_set.0 -= 16
+        }
+    }
+
+    if buttons.just_released(right) {
+        *to_set.0 += 16;
+    }
+}
+
+/// handles setting the arguements for a conditional node
+fn set_conditional_args(
+    gamepad: Gamepad,
+    buttons: &Res<ButtonInput<GamepadButton>>,
+    pre_node: &mut PlacedPreNode,
+) {
+    // TODO: write setting of conditional nodes
+    // todo!("write set_conditional_args");
+    let (mut to_set, complete): (Box<dyn Incrementable>, &mut bool) =
+        if let PlacedPreNode::Conditional {
+            op: (ref mut op, ref mut done),
+            var: _,
+            goto: _,
+        } = pre_node
+            && !*done
+        {
+            (Box::new(op), done)
+        } else if let PlacedPreNode::Conditional {
+            op: _,
+            var: (ref mut var, ref mut done),
+            goto: _,
+        } = pre_node
+            && !*done
+        {
+            (Box::new(var), done)
+        } else if let PlacedPreNode::Conditional {
+            op: _,
+            var: _,
+            goto: (ref mut goto, ref mut done),
+        } = pre_node
+            && !*done
+        {
+            // Box::new(goto.into())
+            // set_conditional_goto(gamepad, buttons, goto, done);
+            return;
+        } else {
+            return;
+        };
+
+    let a = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::East,
+    };
+
+    if buttons.just_released(a) {
+        *complete = true;
+    }
+
+    // up/down = +/- 1
+    let up = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadUp,
+    };
+    let down = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadDown,
+    };
+
+    if buttons.just_released(up) {
+        to_set.small_inc();
+    }
+
+    if buttons.just_released(down) {
+        to_set.small_dec();
+    }
+
+    // left/right = +/- 16
+    let left = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadLeft,
+    };
+    let right = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::DPadRight,
+    };
+
+    if buttons.just_released(left) {
+        // if *to_set.0 > 15 {
+        to_set.big_dec()
+        // }
+    }
+
+    if buttons.just_released(right) {
+        to_set.big_inc();
+    }
 }
 
 fn set_pattern_args(
@@ -709,15 +1077,15 @@ fn move_cursor(
 
         if button == 0 {
             // display.y -= 1;
-            move_up(&mut display, &mut cursor)
+            move_up(&mut display, &mut cursor, true)
         } else if button == 1 {
             // display.y += 1;
-            move_down(&mut display, &mut cursor)
+            move_down(&mut display, &mut cursor, true)
         } else if button == 2 {
             // display.x -= 1;
-            move_left(&mut display, &mut cursor)
+            move_left(&mut display, &mut cursor, true)
         } else if button == 3 {
-            move_right(&mut display, &mut cursor)
+            move_right(&mut display, &mut cursor, true)
             // display.x -= 1;
         } else {
             error!("uknown movement button pressed");
@@ -725,30 +1093,96 @@ fn move_cursor(
     }
 }
 
-fn move_up(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>) {
+fn move_up(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>, move_cursor: bool) {
     if cursor.pos.y > 0 {
         display.y -= 1;
-        cursor.pos.y -= 1;
+        if move_cursor {
+            cursor.pos.y -= 1;
+        }
+        cursor.display.y -= 1;
     }
 }
 
-fn move_down(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>) {
+fn move_down(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>, move_cursor: bool) {
     if cursor.pos.y < GRAPH_Y {
         display.y += 1;
-        cursor.pos.y += 1;
+        if move_cursor {
+            cursor.pos.y += 1;
+        }
+        cursor.display.y += 1;
     }
 }
 
-fn move_left(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>) {
+fn move_left(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>, move_cursor: bool) {
     if cursor.pos.x > 0 {
         display.x -= 1;
-        cursor.pos.x -= 1;
+        if move_cursor {
+            cursor.pos.x -= 1;
+        }
+        cursor.display.x -= 1;
     }
 }
 
-fn move_right(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>) {
+fn move_right(display: &mut ResMut<DisplayWindow>, cursor: &mut ResMut<Cursor>, move_cursor: bool) {
     if cursor.pos.x < GRAPH_X {
         display.x += 1;
-        cursor.pos.x += 1;
+        if move_cursor {
+            cursor.pos.x += 1;
+        }
+        cursor.display.x += 1;
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn simple_operation_incrementable() {
+        let mut op = Operation::Mod;
+        (&mut op).small_inc();
+
+        assert_eq!(
+            op,
+            Operation::Lt,
+            "operation started as '{:?}' and ended as {op:?}. ({:?} was expected)",
+            Operation::Mod,
+            Operation::Lt
+        );
+        (&mut op).small_dec();
+        assert_eq!(
+            op,
+            Operation::Mod,
+            "operation started as '{:?}' and ended as {op:?}. ({:?} was expected)",
+            Operation::Lt,
+            Operation::Mod
+        );
+    }
+
+    #[test]
+    fn operation_incrementable() {
+        let operations: Vec<Operation> = Operation::iter().collect();
+
+        for i in 0..operations.len() {
+            let op_bak = operations[i].clone();
+            let mut op = operations[i].clone();
+            (&mut op).small_inc();
+            let should_be = operations[(i + 1) % operations.len()].clone();
+
+            assert_eq!(op, should_be, "[INCREMENT FAILED] operation started as '{op_bak:?}' and ended as {op:?}. ({should_be:?} was expected)");
+            let op_sav = op.clone();
+            (&mut op).small_dec();
+            assert_eq!(op, op_bak, "[RETURN DECREMENT FAILED] operation started as '{op_sav:?}' and ended as {op:?}. ({:?} was expected)", operations[i].clone());
+
+            // let op_bak = operations[i].clone();
+            let mut op = operations[i].clone();
+            (&mut op).small_dec();
+            let should_be = operations[if i > 0 { i - 1 } else { operations.len() - 1 }].clone();
+
+            assert_eq!(op, should_be, "[DECREMENT FAILED] operation started as '{op_bak:?}' and ended as {op:?}. ({should_be:?} was expected)");
+            let op_sav = op.clone();
+            (&mut op).small_inc();
+            assert_eq!(op, op_bak, "[RETURN INCREMENT FAILED] operation started as '{op_sav:?}' and ended as {op:?}. ({:?} was expected)", operations[i].clone());
+        }
     }
 }
