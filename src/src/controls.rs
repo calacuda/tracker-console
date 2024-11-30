@@ -9,8 +9,6 @@ pub struct ControlsPlugin;
 
 impl Plugin for ControlsPlugin {
     fn build(&self, app: &mut App) {
-        debug!("tracker_backend::controls::ControlsPlugin loaded");
-
         app.init_resource::<NextScreen>()
             .add_systems(Update, gamepad_connections);
         // .add_systems(
