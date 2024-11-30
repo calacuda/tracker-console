@@ -39,11 +39,14 @@ pub trait Channel {
 
 #[derive(Clone, Default, Debug, Component)]
 pub struct Pattern {
-    pub c1: PulseChannel,
+    pub c1: PulseSweepChannel,
     pub c2: PulseChannel,
     pub c3: WaveChannel,
     pub c4: NoiseChannel,
 }
+
+#[derive(Clone, Default, Debug)]
+pub struct PulseSweepChannel {}
 
 #[derive(Clone, Default, Debug)]
 pub struct PulseChannel {}

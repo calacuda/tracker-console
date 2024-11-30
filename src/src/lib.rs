@@ -63,6 +63,10 @@ impl Plugin for TrackerCorePlugin {
         info!("loading TrackerCorePlugin");
 
         app.add_plugins(GraphStatePlugin)
-            .add_plugins(TrackerStatePlugin);
+            .add_plugins(TrackerStatePlugin)
+            .init_state::<ScreenState>()
+            .add_sub_state::<GraphSubState>()
+            .init_state::<PlayingState>()
+            .init_state::<ExitMenuState>();
     }
 }
