@@ -1,4 +1,4 @@
-#![feature(let_chains)]
+#![feature(let_chains, impl_trait_in_assoc_type)]
 use bevy::prelude::*;
 use graph::GraphStatePlugin;
 use stepper::Pattern;
@@ -66,10 +66,15 @@ pub enum StepperChannelParam {
     Params,
 }
 
+// #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
+// #[source(ScreenState = ScreenState::Stepper)]
+// pub enum StepperChannelParam {}
+
 pub type MidiNote = u8;
 /// an index into the phrases list
 pub type PatternIndex = usize;
 pub type AllPatterns = [Option<Pattern>; GRAPH_Y * GRAPH_X];
+pub type InstrumentIndex = usize;
 
 pub const GRAPH_X: usize = 256;
 pub const GRAPH_Y: usize = 256;

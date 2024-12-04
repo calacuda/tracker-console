@@ -531,6 +531,9 @@ fn node_placed(cursor: Res<Cursor>) -> bool {
     true
 }
 
+// TODO: add connecting mode.
+// TODO: add a way to enter "editing stepper" state
+
 fn reset_display_cursor(mut cursor: ResMut<Cursor>) {
     cursor.display.x = cursor.pos.x;
     cursor.display.y = cursor.pos.y;
@@ -649,11 +652,11 @@ fn escape_tracker_node_args_set(
 }
 
 fn set_tracker_node_args(
-    mut graph: ResMut<Graph>,
+    // mut graph: ResMut<Graph>,
     mut cursor: ResMut<Cursor>,
     buttons: Res<ButtonInput<GamepadButton>>,
     my_gamepad: Option<Res<MyGamepad>>,
-    mut next_state: ResMut<NextState<GraphSubState>>,
+    // mut next_state: ResMut<NextState<GraphSubState>>,
 ) {
     let CursorState::Holding(MaybeTrackerNode::PlacedPreNode(ref mut pre_node)) = cursor.state
     else {
@@ -672,8 +675,11 @@ fn set_tracker_node_args(
     set_conditional_args(gamepad, &buttons, pre_node);
 
     if pre_node.should_set() {
-        graph[*cursor] = Some((*pre_node).into());
-        next_state.set(GraphSubState::Neuteral)
+        info!("setting cursor state to Holding(MaybeTrackerNode::ConcreteNode(_))");
+        // graph[*cursor] = Some((*pre_node).into());
+        // next_state.set(GraphSubState::Neuteral)
+        cursor.state =
+            CursorState::Holding(MaybeTrackerNode::ConcreteNode(pre_node.clone().into()));
     }
 }
 
@@ -920,6 +926,7 @@ fn place_tracker_node(
         && buttons.just_released(a)
     {
         cursor.state = CursorState::Holding(MaybeTrackerNode::PlacedPreNode(node_type.into()));
+
         if let Cursor {
             pos,
             display: _,
