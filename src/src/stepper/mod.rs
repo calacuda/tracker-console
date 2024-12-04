@@ -1,7 +1,7 @@
 use crate::{
     controls::MyGamepad,
     graph::{Cursor as GraphCursor, Graph, TrackerNode, TrackerNodeData},
-    AllPatterns, PatternIndex, ScreenState, StepperChannel, StepperChannelParam, GRAPH_X, GRAPH_Y,
+    AllPatterns, PatternIndex, ScreenState, StepperChannelParam, GRAPH_X, GRAPH_Y,
 };
 use bevy::prelude::*;
 use channels::{
@@ -25,34 +25,6 @@ pub struct Pattern {
     pub c4: NoiseChannel,
     pub name: usize,
 }
-
-// impl Index<(SoundChannel, Cursor)> for Pattern {
-//     type Output = Step<impl InstrumentParams>;
-//
-//     fn index(&self, index: (SoundChannel, Cursor)) -> &Self::Output {
-//         match index.0 {
-//             SoundChannel::PulseWSweep => &self.c1[index.1],
-//             SoundChannel::PulseWOSweep => &self.c2[index.1],
-//             _ => todo!("write the rest"),
-//         }
-//     }
-// }
-
-// impl Pattern {
-//     fn nudge_at(&mut self, cursor: Cursor) -> Result<()> {
-//         match cursor.location {
-//             // StepperChannelParam::Params => {
-//             //     match ch
-//             // }
-//             // StepperChannelParam::Channels => {}
-//             // (StepperChannel::Channel1, StepperChannelParam::Params) => {
-//             //     self.c1.nudge_step(cursor.param_num)
-//             // }
-//             // (StepperChannel::Channel1, StepperChannelParam::Channels) => {}
-//             CursorLocation
-//         }
-//     }
-// }
 
 #[derive(Clone, Debug, Resource)]
 pub struct Patterns(AllPatterns);
@@ -142,17 +114,9 @@ impl Plugin for StepperPlugin {
             .add_systems(Update, movement.run_if(in_state(ScreenState::Stepper)))
             .add_systems(Update, nudge.run_if(in_state(ScreenState::Stepper)))
             .add_systems(Update, nudge_note.run_if(in_state(ScreenState::Stepper)))
-            // .add_systems(
-            //     Update,
-            //     channel_movement.run_if(in_state(StepperChannelParam::Channels)),
-            // )
-            // .add_systems(
-            //     Update,
-            //     param_movement.run_if(in_state(StepperChannelParam::Params)),
-            // )
             .add_systems(
                 Update,
-                handle_movement.run_if(in_state(StepperChannelParam::Channels)),
+                handle_movement.run_if(in_state(ScreenState::Stepper)),
             );
     }
 }
@@ -288,36 +252,6 @@ fn nudge(
         });
     }
 }
-
-// TODO: setting of params for single step
-// TODO: setting of params for whole channel
-
-// fn param_movement(mut reader: EventReader<CursorMovement>, mut cursor: ResMut<Cursor>) {
-//     for event in reader.read() {
-//         match *event {
-//             CursorMovement::Up => {
-//                 cursor.param_num += 8;
-//                 cursor.param_num %= 16;
-//             }
-//             CursorMovement::Down => {
-//                 cursor.param_num += 8;
-//                 cursor.param_num %= 16;
-//             }
-//             CursorMovement::Right => {
-//                 cursor.param_num += 1;
-//                 cursor.param_num %= 16;
-//             }
-//             CursorMovement::Left => {
-//                 if cursor.param_num > 0 {
-//                     cursor.param_num -= 1;
-//                     cursor.param_num %= 16;
-//                 } else {
-//                     cursor.param_num = 15;
-//                 }
-//             }
-//         }
-//     }
-// }
 
 fn handle_movement(mut reader: EventReader<CursorMovement>, mut cursor: ResMut<Cursor>) {
     for event in reader.read() {

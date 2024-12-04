@@ -48,15 +48,15 @@ pub enum GraphSubState {
     Neuteral,
 }
 
-#[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
-#[source(ScreenState = ScreenState::Stepper)]
-pub enum StepperChannel {
-    #[default]
-    Channel1,
-    Channel2,
-    Channel3,
-    Channel4,
-}
+// #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
+// #[source(ScreenState = ScreenState::Stepper)]
+// pub enum StepperChannel {
+//     #[default]
+//     Channel1,
+//     Channel2,
+//     Channel3,
+//     Channel4,
+// }
 
 // TODO: Depricate Bellow
 #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
@@ -90,7 +90,7 @@ impl Plugin for TrackerCorePlugin {
             .add_plugins(TrackerStatePlugin)
             .init_state::<ScreenState>()
             .add_sub_state::<GraphSubState>()
-            .add_sub_state::<StepperChannel>()
+            // .add_sub_state::<StepperChannel>()
             .add_sub_state::<StepperChannelParam>()
             .init_state::<PlayingState>()
             .init_state::<ExitMenuState>();

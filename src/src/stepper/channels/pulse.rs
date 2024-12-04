@@ -38,13 +38,13 @@ impl InstrumentParams for PulseChannelParams {
 
     fn nudge_param(&mut self, param_i: usize, up: bool) -> Result<()> {
         if param_i == 0 {
-            self.shape.nudge(up)
+            self.shape.nudge(up)?
         } else if param_i == 1 {
-            self.volume.nudge(up)
+            self.volume.nudge(up)?
         } else if param_i == 2 {
-            self.time.nudge(up)
+            self.time.nudge(up)?
         } else if param_i == 3 {
-            self.dir.nudge(up)
+            self.dir.nudge(up)?
         // } else if param_i == 4 {
         //     self.sweep.nudge(up)
         // } else if param_i == 5 {
@@ -54,13 +54,15 @@ impl InstrumentParams for PulseChannelParams {
         } else {
             bail!("invalid parameter selection.")
         }
+
+        Ok(())
     }
 }
 
 #[derive(Clone, Copy, Default, Debug)]
 pub struct PulseChannel {
     steps: [Step<PulseChannelParams>; 16],
-    dev_null: Step<PulseChannelParams>,
+    // dev_null: Step<PulseChannelParams>,
 }
 
 impl Index<Cursor> for PulseChannel {
