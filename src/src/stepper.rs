@@ -131,6 +131,7 @@ impl Index<(SoundChannel, Cursor)> for Pattern {
     fn index(&self, index: (SoundChannel, Cursor)) -> &Self::Output {
         match index.0 {
             SoundChannel::PulseWSweep => &self.c1[index.1],
+            // SoundChannel::PulseWOSweep => &self.c2[index.1],
             _ => todo!("write the rest"),
         }
     }
@@ -591,7 +592,7 @@ impl Param for SweepDir {
         "DIR".into()
     }
 
-    fn set(&mut self, to: f32) -> Result<()> {
+    fn set(&mut self, _to: f32) -> Result<()> {
         todo!("write this...")
     }
 }
@@ -719,6 +720,7 @@ impl Channel<PulseSweepChannelParams> for PulseSweepChannel {
         Ok(())
         // } else {}
     }
+
     // fn render_icon(&self, bevy_cmds: Commands, marker: impl Component) {
     //     // make PulseSweepChannel able to render its icon
     // }
@@ -816,6 +818,7 @@ impl Plugin for StepperPlugin {
                 param_or_channel.run_if(in_state(ScreenState::Stepper)),
             )
             .add_systems(Update, movement.run_if(in_state(ScreenState::Stepper)))
+            .add_systems(Update, set_midi_note.run_if(in_state(ScreenState::Stepper)))
             .add_systems(
                 Update,
                 channel_movement.run_if(in_state(StepperChannelParam::Channels)),
