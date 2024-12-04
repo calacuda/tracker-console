@@ -58,6 +58,7 @@ pub enum StepperChannel {
     Channel4,
 }
 
+// TODO: Depricate Bellow
 #[derive(SubStates, Clone, PartialEq, Eq, Hash, Debug, Default)]
 #[source(ScreenState = ScreenState::Stepper)]
 pub enum StepperChannelParam {
