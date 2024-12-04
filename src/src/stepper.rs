@@ -131,7 +131,7 @@ impl Index<(SoundChannel, Cursor)> for Pattern {
     fn index(&self, index: (SoundChannel, Cursor)) -> &Self::Output {
         match index.0 {
             SoundChannel::PulseWSweep => &self.c1[index.1],
-            // SoundChannel::PulseWOSweep => &self.c2[index.1],
+            SoundChannel::PulseWOSweep => &self.c2[index.1],
             _ => todo!("write the rest"),
         }
     }
@@ -729,9 +729,16 @@ impl Channel<PulseSweepChannelParams> for PulseSweepChannel {
 }
 
 #[derive(Clone, Copy, Default, Debug)]
-pub struct PulseChannel {}
+pub struct PulseChannel {
+    steps: [Step<PulseChannelParams>; 16],
+    dev_null: Step<PulseChannelParams>,
+}
 
-// impl Channel for PulseChannel {}
+impl Channel<PulseChannelParams> for PulseChannel {
+    fn nudge(&mut self, up: bool, cursor: Option<usize>) -> Result<()> {}
+
+    fn get_steps(&self) -> [Step<PulseChannelParams>; 16] {}
+}
 
 #[derive(Clone, Copy, Default, Debug)]
 pub struct WaveChannel {}
