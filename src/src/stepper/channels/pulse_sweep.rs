@@ -321,6 +321,6 @@ impl Channel<PulseSweepChannelParams> for PulseSweepChannel {
     // fn tooltip(&self) -> String {}
 
     fn nudge_step(&mut self, step_num: usize, up: bool, param_num: Option<usize>) -> Result<()> {
-        Ok(())
+        self.steps[step_num].nudge(up, param_num)
     }
 }

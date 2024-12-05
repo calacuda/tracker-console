@@ -1,4 +1,4 @@
-use super::{Hoverable, Nudgable, Param, PulseDir, PulseShape, TimeParam, Volume};
+use super::{Hoverable, Nudgable, Param};
 use crate::{
     stepper::{step::Step, Channel, Cursor, InstrumentParams},
     InstrumentIndex,
