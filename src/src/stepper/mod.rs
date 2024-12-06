@@ -144,6 +144,9 @@ fn stepper_setup(
             "the cursor was not focused on a pattern node. unknown what pattern you want to edit"
         );
         next_state.set(ScreenState::Graph);
+        error!(
+            "tracker graph cursor was not hovering over a pattern, not entering step edit screen."
+        );
         return;
     };
 
