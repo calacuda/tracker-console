@@ -1,6 +1,7 @@
+#!/usr/bin/python3
 import pygame
 from pygame.rect import Rect
-from tracker_backend import InputCMD, Button, ScreenData, State, get_config, run as run_tracker
+# from tracker_backend import InputCMD, Button, ScreenData, State, get_config, run as run_tracker
 from pathlib import Path
 from midi_tracker.phrase_tab import PhrasesTab
 from midi_tracker._logging import get_logger

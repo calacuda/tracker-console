@@ -1,5 +1,13 @@
-default:
+_:
   just -l
+
+install-lib:
+  pip uninstall -y stepper-synth-backend && maturin develop
+
+only-run:
+  python ./gui/Stepper-Synth.pygame
+
+run-new: install-lib only-run
 
 new-window NAME CMD:
   tmux new-w -t midi-tracker -n "{{NAME}}"
