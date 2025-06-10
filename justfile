@@ -2,10 +2,10 @@ _:
   just -l
 
 install-lib:
-  pip uninstall -y stepper-synth-backend && maturin develop
+  pip uninstall -y midi-band && maturin develop
 
 only-run:
-  python ./gui/Stepper-Synth.pygame
+  python ./pygame-frontend/MIDI-Tracker.pygame
 
 run-new: install-lib only-run
 
