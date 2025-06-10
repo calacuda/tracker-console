@@ -73,3 +73,5 @@ docs/_build/
 Cargo.lock
 pygame-version
 cross-build-deps
+*.bak
+pygame-frontend
