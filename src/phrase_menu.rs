@@ -415,7 +415,8 @@ fn edit_inst(
 
 fn edit_cmd(
     mut phrases: ResMut<AllPhrases>,
-    mut last_added: ResMut<LastAdded>,
+    // mut last_added: ResMut<LastAdded>,
+    last_added: Res<LastAdded>,
     display_cursor: Res<DisplayCursor>,
     mut events: EventReader<EditCmd>,
     mut state_updated: EventWriter<StateUpdated>,

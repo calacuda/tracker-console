@@ -12,7 +12,7 @@ pub type MidiNote = u8;
 pub type CmdArg = u32;
 pub type Cmd = char;
 pub type ChannelIndex = u8;
-pub type Bpm = u8;
+pub type Bpm = u16;
 pub type Float = f32;
 
 pub const LINE_LEN: usize = 0xFFFF;

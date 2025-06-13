@@ -4,11 +4,9 @@ A midi tracker for linux powered handheld retro emulation handhelds such as the 
 
 ## TODO
 
-- [x] have all rendering handled by the python side. rust code should only output on state changes.
-
-## Statefull Rewrite
-
-Goal: hande state, audio syntheis, and Midi, in rust. handle display and graphics in python.
+- [ ] add exit menu
+- [ ] make tempo changable
+- [ ] change next screen button to the west face button
 
 ## Screens
 

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
 pub type Color = [u8; 3];
-pub type Bpm = u8;
+pub type Bpm = u16;
 
 #[pyclass(module = "tracker_backend", get_all)]
 #[derive(Serialize, Deserialize, Default, Clone, Debug, PartialEq)]

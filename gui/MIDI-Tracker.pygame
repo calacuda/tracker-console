@@ -9,7 +9,7 @@ from midi_tracker.side_bar import SideBar
 from midi_tracker.song_tab import SongTab
 from midi_tracker.chains_tab import ChainsTab
 from midi_tracker.insts_tab import InstsTab
-from logging import DEBUG, INFO
+from logging import DEBUG, INFO, WARNING
 from dataclasses import dataclass
 
 
@@ -34,7 +34,9 @@ fonts = [pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 45),
          pygame.font.Font(f'{THIS_DIR}/Anonymous Pro.ttf', 18)]
 clock = pygame.time.Clock()
 done = False
-log = get_logger("MIDI-Tracker", DEBUG)
+# log = get_logger("MIDI-Tracker", DEBUG)
+# log = get_logger("MIDI-Tracker", INFO)
+log = get_logger("MIDI-Tracker", WARNING)
 
 
 @dataclass
@@ -51,7 +53,7 @@ class PygameState:
             name = note % 12
 
             names = ["C-", "C#", "D-", "D#", "E-",
-                     "F-", "F#", "G", "G#", "A-", "A#", "B-"]
+                     "F-", "F#", "G-", "G#", "A-", "A#", "B-"]
 
             note = names[name]
             return f"{note}{octave:X}"
@@ -238,6 +240,7 @@ def handle_pygame_events():
         if event.type == pygame.QUIT:
             log.warning("QUITTING")
             tracker_ipc.send(InputCMD.Exit())
+            # TODO: send all note off
             pygame.quit()
             return False
         elif event.type == pygame.JOYDEVICEADDED:
@@ -347,10 +350,11 @@ def loop_clean_up():
     clock.tick()
 
 
-while handle_pygame_events():
-    # proccess_cmd()
-    proccess_state_change()
-    loop_clean_up()
+if __name__ == "__main__":
+    while handle_pygame_events():
+        # proccess_cmd()
+        proccess_state_change()
+        loop_clean_up()
 
-print("DONE")
-quit()
+    print("DONE")
+    quit()

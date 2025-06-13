@@ -108,7 +108,7 @@ fn update_state(
             Screen::PlaySynth() => ScreenData::PlaySynth(),
         };
 
-        let playing = match playing.0.lock().unwrap().clone() {
+        let notes = match playing.0.lock().unwrap().clone() {
             PlaybackCursor::NotPlaying() => [None, None, None, None],
             PlaybackCursor::NotFull {
                 from_screen: _,
@@ -131,17 +131,17 @@ fn update_state(
             screen,
             tempo: tempo.0,
             song: song.clone(),
-            playing,
+            playing: notes,
         };
 
-        info!("sending state to frontend");
+        debug!("sending state to frontend");
         // send the state struct
         if let Err(e) = coms.send_msg(state) {
             error!("sending updated state failed with error: {e}");
         } else {
-            info!("Sent state to Python");
+            debug!("Sent state to Python");
         }
 
-        info!("sending complete");
+        debug!("sending complete");
     }
 }

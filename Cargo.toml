@@ -15,6 +15,9 @@ bevy = { version = "0.14.2", default-features = false, features = ["bevy_gilrs",
 crossbeam = { version = "0.8.4", features = ["crossbeam-channel", "nightly"] }
 # tracker-lib = { version = "0.1.0", path = "common-lib", features = ["bevy"] }
 # fern = { version = "0.6.2", features = ["colored"] }
-pyo3 = "0.22.6"
+pyo3 = "0.23.3"
 anyhow = { version = "1.0.93", features = ["backtrace"] }
 serde = { version = "1.0.214", features = ["derive"] }
+midir = "0.10.1"
+midi-msg = "0.8.0"
+bevy_midi = "0.9.0"

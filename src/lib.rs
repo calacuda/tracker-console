@@ -1,11 +1,13 @@
 #![feature(let_chains)]
 use crate::config::ui::{get_config, TrackerConfig};
 use bevy::{a11y::AccessibilityPlugin, log::LogPlugin, prelude::*};
+use bevy_midi::output::{MidiOutputPlugin, MidiOutputSettings};
 use chain_menu::ChainMenuPlugin;
 use config::ui::{ColorsConfig, FontConfig, MenuUiConf, TabUiConf, UiConfig};
 use controls::ControlsPlugin;
 use ipc::{gen_ipc, RustIPC, TrackerIPC};
 use phrase_menu::PhraseMenuPlugin;
+use playing::MidiOutPlugin;
 use pygame_coms::{
     Button, Chain, ChainRow, InputCMD, Instrument, Phrase, PhraseRow, PlaybackCursor, Screen,
     ScreenData, Song, SongRow, State, TrackerCommand,
@@ -45,6 +47,7 @@ pub mod config;
 pub mod controls;
 pub mod ipc;
 pub mod phrase_menu;
+pub mod playing;
 pub mod pygame_coms;
 pub mod song_menu;
 pub mod tracker_state;
@@ -104,7 +107,7 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
 
                         match msg {
                             InputCMD::Exit() => {
-                                info!("exiting from runner loop becuase of PyGame Exit.");
+                                warn!("exiting from runner loop becuase of PyGame Exit.");
                                 return AppExit::Success;
                             }
                             InputCMD::ButtonPress(button) => ctrl.press(button),
@@ -130,7 +133,7 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
             }
 
             if let Some(exit) = app.should_exit() {
-                info!("exiting from runner loop becuase of a program shutdown.");
+                warn!("exiting from runner loop becuase of a program shutdown.");
                 return exit;
             }
         }
@@ -153,18 +156,23 @@ fn start(io: RustIPC) {
                 .set(LogPlugin {
                     // filter: "info,wgpu_core=warn,wgpu_hal=warn,mygame=debug".into(),
                     // #[cfg(debug_assertions)]
-                    level: bevy::log::Level::DEBUG,
+                    level: bevy::log::Level::INFO,
                     // #[cfg(not(debug_assertions))]
                     // level: bevy::log::Level::INFO,
                     ..Default::default()
                 }),
         )
+        .insert_resource(MidiOutputSettings {
+            port_name: "Bevy-Synth-Output",
+        })
+        .add_plugins(MidiOutputPlugin)
         .add_plugins(ControlsPlugin)
         // .add_plugins(base_display::BaseDisplayPlugin)
         .add_plugins(TrackerStatePlugin)
         .add_plugins(SongMenuPlugin)
         .add_plugins(ChainMenuPlugin)
         .add_plugins(PhraseMenuPlugin)
+        .add_plugins(MidiOutPlugin)
         // .insert_state(ScreenData::Song)
         .init_state::<ScreenState>()
         .init_state::<PlayingState>()
