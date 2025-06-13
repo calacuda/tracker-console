@@ -273,19 +273,24 @@ fn screen_change(
     //     warn!("game pad name = {gp}");
     // }
 
-    let start_button = if let Some(name) = gamepads.name(gamepad)
-        && name.starts_with("PS5")
-    {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Start,
-        }
-    } else {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Select,
-        }
+    let shift_button = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::West,
     };
+
+    //     if let Some(name) = gamepads.name(gamepad)
+    //     && name.starts_with("PS5")
+    // {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Start,
+    //     }
+    // } else {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Select,
+    //     }
+    // };
 
     let screens = [
         ScreenState::EditSong,
@@ -303,7 +308,7 @@ fn screen_change(
     };
 
     if buttons.just_released(left_button)
-        && buttons.pressed(start_button)
+        && buttons.pressed(shift_button)
         && !buttons.pressed(a_button)
     {
         // button just pressed: make the player jump
@@ -336,7 +341,7 @@ fn screen_change(
             )
         }
     } else if buttons.just_released(right_button)
-        && buttons.pressed(start_button)
+        && buttons.pressed(shift_button)
         && !buttons.pressed(a_button)
     {
         // button just pressed: make the player jump

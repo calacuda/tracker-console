@@ -7,6 +7,7 @@ A midi tracker for linux powered handheld retro emulation handhelds such as the 
 - [ ] add exit menu
 - [ ] make tempo changable
 - [ ] change next screen button to the west face button
+- [ ] add a highlight to indicate playback location.
 
 ## Screens
 

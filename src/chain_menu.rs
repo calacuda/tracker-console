@@ -282,21 +282,26 @@ fn movement(
         button_type: GamepadButtonType::DPadDown,
     };
 
-    let start_button = if let Some(name) = gamepads.name(gamepad)
-        && name.starts_with("PS5")
-    {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Start,
-        }
-    } else {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Select,
-        }
+    // let start_button = if let Some(name) = gamepads.name(gamepad)
+    //     && name.starts_with("PS5")
+    // {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Start,
+    //     }
+    // } else {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Select,
+    //     }
+    // };
+
+    let shift_button = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::West,
     };
 
-    if buttons.just_released(up_button) && !buttons.pressed(start_button) {
+    if buttons.just_released(up_button) && !buttons.pressed(shift_button) {
         let new_row = if display_cursor.row == 0 {
             15
         } else {
@@ -308,7 +313,7 @@ fn movement(
         state_updated.send_default();
     }
 
-    if buttons.just_released(down_button) && !buttons.pressed(start_button) {
+    if buttons.just_released(down_button) && !buttons.pressed(shift_button) {
         let new_row = if display_cursor.row == 15 {
             0
         } else {

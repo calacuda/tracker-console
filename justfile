@@ -11,6 +11,7 @@ run-new: install-lib only-run
 
 flash-scp:
   scp -r ./{gui/MIDI-Tracker.pygame,dist/tracker_backend-0.1.0-cp312-cp312-manylinux_2_*_aarch64.whl}  root@192.168.1.112:/userdata/roms/ports/MIDI-Tracker/
+  ssh root@192.168.1.112 "cd /userdata/roms/ports/MIDI-Tracker/; .venv/bin/python -m pip install --force-reinstall --no-index ./tracker_backend-*aarch64.whl"
 
 flash-adb:
   adb shell "mkdir /userdata/roms/ports/MIDI-Tracker/"

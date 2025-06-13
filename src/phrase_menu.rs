@@ -488,21 +488,25 @@ fn movement(
         button_type: GamepadButtonType::DPadRight,
     };
 
-    let start_button = if let Some(name) = gamepads.name(gamepad)
-        && name.starts_with("PS5")
-    {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Start,
-        }
-    } else {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Select,
-        }
+    // let start_button = if let Some(name) = gamepads.name(gamepad)
+    //     && name.starts_with("PS5")
+    // {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Start,
+    //     }
+    // } else {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Select,
+    //     }
+    // };
+    let shift_button = GamepadButton {
+        gamepad,
+        button_type: GamepadButtonType::West,
     };
 
-    if buttons.just_released(up_button) && !buttons.pressed(start_button) {
+    if buttons.just_released(up_button) && !buttons.pressed(shift_button) {
         let new_row = if display_cursor.row == 0 {
             15
         } else {
@@ -514,7 +518,7 @@ fn movement(
         state_updated.send_default();
     }
 
-    if buttons.just_released(down_button) && !buttons.pressed(start_button) {
+    if buttons.just_released(down_button) && !buttons.pressed(shift_button) {
         let new_row = if display_cursor.row == 15 {
             0
         } else {
@@ -526,7 +530,7 @@ fn movement(
         state_updated.send_default();
     }
 
-    if buttons.just_released(left_button) && !buttons.pressed(start_button) {
+    if buttons.just_released(left_button) && !buttons.pressed(shift_button) {
         let new_col = if display_cursor.col == 0 {
             2
         } else {
@@ -538,7 +542,7 @@ fn movement(
         state_updated.send_default();
     }
 
-    if buttons.just_released(right_button) && !buttons.pressed(start_button) {
+    if buttons.just_released(right_button) && !buttons.pressed(shift_button) {
         let new_col = if display_cursor.col == 2 {
             0
         } else {

@@ -274,7 +274,7 @@ fn start_playing(
         return;
     };
 
-    let select_button = if let Some(name) = gamepads.name(gamepad)
+    let start_button = if let Some(name) = gamepads.name(gamepad)
         && name.starts_with("PS5")
     {
         GamepadButton {
@@ -288,7 +288,7 @@ fn start_playing(
         }
     };
 
-    if buttons.just_released(select_button)
+    if buttons.just_released(start_button)
         && !buttons.pressed(GamepadButton {
             gamepad,
             button_type: GamepadButtonType::Mode,
@@ -309,7 +309,7 @@ fn stop_playing(
         return;
     };
 
-    let select_button = if let Some(name) = gamepads.name(gamepad)
+    let start_button = if let Some(name) = gamepads.name(gamepad)
         && name.starts_with("PS5")
     {
         GamepadButton {
@@ -323,7 +323,7 @@ fn stop_playing(
         }
     };
 
-    if buttons.just_released(select_button) {
+    if buttons.just_released(start_button) {
         playing_state.set(PlayingState::NotPlaying);
     }
 }
