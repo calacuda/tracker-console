@@ -7,7 +7,8 @@ A midi tracker for linux powered handheld retro emulation handhelds such as the 
 - [ ] add exit menu (triggered by menu/mode/home button + start)
 - [ ] make tempo changable via UI
 - [x] change next screen button to the west face button
-- [ ] add a highlight to indicate playhead location when playing.
+- [ ] send off messages for all playing notes when playback stops
+- [ ] add a highlight to indicate playhead location when playing
 - [ ] add config file and the ability to connect to multiple USB Midi Devices
 
 ## Screens
