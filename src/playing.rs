@@ -9,6 +9,7 @@ use bevy_midi::{
     output::{MidiOutput, MidiOutputConnection},
     MidiMessage,
 };
+use midi_msg::{MidiMsg, SystemRealTimeMsg};
 use std::{
     time::{Duration, Instant},
     usize,
@@ -164,11 +165,31 @@ fn sync(
     tempo: Res<Tempo>,
     mut pulse: ResMut<SyncPulse>,
     // mut state_updated: EventWriter<StateUpdated>,
+    output: Res<MidiOutput>,
 ) {
     sync_timer.0.tick(time.delta());
 
     if sync_timer.0.just_finished() {
+        // if pulse.n_pulses == 0 {
+        //     let midi_bytes = MidiMsg::SystemRealTime {
+        //         msg: SystemRealTimeMsg::Start,
+        //     }
+        //     .to_midi();
+        //
+        //     output.send(MidiMessage {
+        //         msg: midi_bytes.into(),
+        //     });
+        // }
+
         // TODO: send sync message
+        let midi_bytes = MidiMsg::SystemRealTime {
+            msg: SystemRealTimeMsg::TimingClock,
+        }
+        .to_midi();
+
+        output.send(MidiMessage {
+            msg: midi_bytes.into(),
+        });
 
         // warn!("sync");
 
@@ -268,6 +289,7 @@ fn start_playing(
     my_gamepad: Option<Res<MyGamepad>>,
     gamepads: Res<Gamepads>,
     mut playing_state: ResMut<NextState<PlayingState>>,
+    output: Res<MidiOutput>,
 ) {
     let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
         // no gamepad is connected

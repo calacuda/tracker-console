@@ -20,4 +20,4 @@ anyhow = { version = "1.0.93", features = ["backtrace"] }
 serde = { version = "1.0.214", features = ["derive"] }
 midir = "0.10.1"
 midi-msg = "0.8.0"
-bevy_midi = "0.9.0"
+bevy_midi = { git = "https://github.com/calacuda/bevy_midi", version = "0.9.1" }

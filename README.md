@@ -4,10 +4,11 @@ A midi tracker for linux powered handheld retro emulation handhelds such as the 
 
 ## TODO
 
-- [ ] add exit menu
-- [ ] make tempo changable
-- [ ] change next screen button to the west face button
-- [ ] add a highlight to indicate playback location.
+- [ ] add exit menu (triggered by menu/mode/home button + start)
+- [ ] make tempo changable via UI
+- [x] change next screen button to the west face button
+- [ ] add a highlight to indicate playhead location when playing.
+- [ ] add config file and the ability to connect to multiple USB Midi Devices
 
 ## Screens
 
