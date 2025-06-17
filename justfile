@@ -24,7 +24,8 @@ build:
 
 build-release:
   # PKG_CONFIG_SYSROOT_DIR=/opt/ArchARM maturin build --out dist --find-interpreter --target aarch64-unknown-linux-gnu
-  PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/aarch64 maturin build --out dist --find-interpreter --release --target aarch64-unknown-linux-gnu --zig
+  # PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/aarch64 maturin build --out dist --find-interpreter --release --target aarch64-unknown-linux-gnu --zig
+  PKG_CONFIG_SYSROOT_DIR=./cross-build-deps/aarch64 maturin build --out dist --interpreter python 3.12 --release --target aarch64-unknown-linux-gnu --zig
 
 flash: build-release flash-adb
 

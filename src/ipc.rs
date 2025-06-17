@@ -9,12 +9,14 @@ use pyo3::prelude::*;
 pub struct TrackerIPC {
     pub rx: Receiver<State>,
     pub tx: Sender<InputCMD>,
+    exit_sig_rx: Receiver<bool>,
 }
 
 #[derive(Debug, Clone, Resource)]
 pub struct RustIPC {
     pub rx: Receiver<InputCMD>,
     pub tx: Sender<State>,
+    exit_sig_tx: Sender<bool>,
 }
 
 // #[derive(Debug, Clone)]
@@ -52,6 +54,10 @@ impl TrackerIPC {
             Err(e) => error!("{e}"),
         }
     }
+
+    fn should_exit(&self) -> bool {
+        self.exit_sig_rx.try_recv().is_ok_and(|msg| msg)
+    }
 }
 
 impl RustIPC {
@@ -65,6 +71,10 @@ impl RustIPC {
 
     pub fn send_msg(&self, state: State) -> Result<()> {
         Ok(self.tx.send(state)?)
+    }
+
+    pub fn set_exit(&self, exit: bool) -> Result<()> {
+        Ok(self.exit_sig_tx.send(exit)?)
     }
 }
 
@@ -84,6 +94,18 @@ impl RustIPC {
 pub fn gen_ipc() -> (RustIPC, TrackerIPC) {
     let (tx, rx) = unbounded();
     let (tx_2, rx_2) = unbounded();
+    let (exit_tx, exit_rx) = unbounded();
 
-    (RustIPC { rx, tx: tx_2 }, TrackerIPC { rx: rx_2, tx })
+    (
+        RustIPC {
+            rx,
+            tx: tx_2,
+            exit_sig_tx: exit_tx,
+        },
+        TrackerIPC {
+            rx: rx_2,
+            tx,
+            exit_sig_rx: exit_rx,
+        },
+    )
 }

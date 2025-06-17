@@ -134,6 +134,11 @@ fn build_runner(io: RustIPC) -> impl FnMut(App) -> AppExit {
 
             if let Some(exit) = app.should_exit() {
                 warn!("exiting from runner loop becuase of a program shutdown.");
+
+                if let Err(e) = io.set_exit(true) {
+                    error!("attempt to signal system exit to PyGame front end failed with error: {e}. The application GUI will now hang indefinitely.");
+                }
+
                 return exit;
             }
         }
@@ -177,10 +182,21 @@ fn start(io: RustIPC) {
         .init_state::<ScreenState>()
         .init_state::<PlayingState>()
         .init_state::<ExitMenuState>()
+        .add_systems(Update, exit)
         .set_runner(build_runner(io))
         .run();
 
     info!("goodbye");
+}
+
+fn exit(buttons: Single<&Gamepad>, mut exit: EventWriter<AppExit>) {
+    let start_button = GamepadButton::Start;
+    let mode_button = GamepadButton::Mode;
+
+    if buttons.pressed(mode_button) && buttons.just_released(start_button) {
+        // playing_state.set(PlayingState::NotPlaying);
+        exit.write(AppExit::Success);
+    }
 }
 
 #[pyfunction]
