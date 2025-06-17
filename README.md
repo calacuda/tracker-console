@@ -12,7 +12,8 @@ A midi tracker for linux powered handheld retro emulation handhelds such as the 
 - [x] add force exit (triggered by menu/mode/home button + start)
 - [ ] send off messages for all playing notes (and only htose that have been triggered) when playback stops
 - [ ] add config file and the ability to connect to multiple USB Midi Devices
-- [ ] make multiple phrases playable at once and make them sync.
+- [ ] make multiple phrases playable at once and make them sync
+- [ ] add battery charg indicator
 
 ## Screens
 
