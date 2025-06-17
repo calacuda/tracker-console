@@ -83,7 +83,7 @@ impl Default for AllInstruments {
 //     updated.0
 // }
 fn send_state(mut state_update_events: EventWriter<StateUpdated>) {
-    state_update_events.send_default();
+    state_update_events.write_default();
 }
 
 fn update_state(
@@ -91,7 +91,7 @@ fn update_state(
     mut state_update_events: EventReader<StateUpdated>,
     tempo: Res<Tempo>,
     screen: Res<Screen>,
-    instruments: Res<AllInstruments>,
+    // instruments: Res<AllInstruments>,
     phrases: Res<AllPhrases>,
     chains: Res<AllChains>,
     playing: Res<PlaybackCursorWrapper>,

@@ -59,7 +59,7 @@ impl Default for TrackerCommand {
     }
 }
 
-#[pyclass(module = "tracker_backend", get_all)]
+#[pyclass(module = "tracker_backend", get_all, eq, eq_int)]
 #[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd)]
 pub enum InstrumentOutput {
     UsbMidi,

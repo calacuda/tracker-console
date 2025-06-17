@@ -1,10 +1,9 @@
 use crate::{
     pygame_coms::{DisplayCursor, Index, Note, Screen, Song, TrackerCommand},
-    tracker_state::{AllChains, AllInstruments, AllPhrases},
+    tracker_state::{AllChains, AllPhrases},
     ExitMenuState, ScreenState,
 };
 use bevy::{
-    input::gamepad::{GamepadConnection, GamepadEvent},
     log::*,
     prelude::*,
 };
@@ -19,7 +18,7 @@ impl Plugin for ControlsPlugin {
         app.insert_resource(LastViewed::default())
             .insert_resource(LastAdded::default())
             .init_resource::<NextScreen>()
-            .add_systems(Update, gamepad_connections)
+            // .add_systems(Update, gamepad_connections)
             .add_systems(
                 Update,
                 screen_change.run_if(not(in_state(ExitMenuState::Opened))),
@@ -52,45 +51,45 @@ pub struct NextScreen(Option<ScreenState>);
 #[derive(Resource)]
 pub struct MyGamepad(pub Gamepad);
 
-fn gamepad_connections(
-    mut commands: Commands,
-    my_gamepad: Option<Res<MyGamepad>>,
-    mut evr_gamepad: EventReader<GamepadEvent>,
-) {
-    for ev in evr_gamepad.read() {
-        // we only care about connection events
-        let GamepadEvent::Connection(ev_conn) = ev else {
-            continue;
-        };
-        match &ev_conn.connection {
-            GamepadConnection::Connected(info) => {
-                debug!(
-                    "New gamepad connected: {:?}, name: {}",
-                    ev_conn.gamepad, info.name,
-                );
-                // if we don't have any gamepad yet, use this one
-                if my_gamepad.is_none() {
-                    commands.insert_resource(MyGamepad(ev_conn.gamepad));
-                }
-            }
-            GamepadConnection::Disconnected => {
-                debug!("Lost connection with gamepad: {:?}", ev_conn.gamepad);
-                // if it's the one we previously used for the player, remove it:
-                if let Some(MyGamepad(old_id)) = my_gamepad.as_deref() {
-                    if *old_id == ev_conn.gamepad {
-                        commands.remove_resource::<MyGamepad>();
-                    }
-                }
-            }
-        }
-    }
-}
+// fn gamepad_connections(
+//     mut commands: Commands,
+//     my_gamepad: Option<Res<MyGamepad>>,
+//     mut evr_gamepad: EventReader<GamepadEvent>,
+// ) {
+//     for ev in evr_gamepad.read() {
+//         // we only care about connection events
+//         let GamepadEvent::Connection(ev_conn) = ev else {
+//             continue;
+//         };
+//         match &ev_conn.connection {
+//             GamepadConnection::Connected(info) => {
+//                 debug!(
+//                     "New gamepad connected: {:?}, name: {}",
+//                     ev_conn.gamepad, info.name,
+//                 );
+//                 // if we don't have any gamepad yet, use this one
+//                 if my_gamepad.is_none() {
+//                     commands.insert_resource(MyGamepad(ev_conn.gamepad));
+//                 }
+//             }
+//             GamepadConnection::Disconnected => {
+//                 debug!("Lost connection with gamepad: {:?}", ev_conn.gamepad);
+//                 // if it's the one we previously used for the player, remove it:
+//                 if let Some(MyGamepad(old_id)) = my_gamepad.as_deref() {
+//                     if *old_id == ev_conn.gamepad {
+//                         commands.remove_resource::<MyGamepad>();
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
 
 fn update_state(
     screen: Screen,
     // mut next_screen: ResMut<NextState<ScreenState>>,
     // mut screen_will_be: ResMut<NextScreen>,
-    instruments: Res<AllInstruments>,
+    // instruments: Res<AllInstruments>,
     phrases: Res<AllPhrases>,
     chains: Res<AllChains>,
     song: Res<Song>,
@@ -258,45 +257,34 @@ fn update_state(
 
 /// Handles switching between tabs in the menu.
 fn screen_change(
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    // buttons: Res<ButtonInput<GamepadButton>>,
+    buttons: Single<&Gamepad>,
+    // my_gamepad: Option<Res<MyGamepad>>,
     state: ResMut<State<ScreenState>>,
     mut next_screen: ResMut<NextState<ScreenState>>,
     mut screen_res: ResMut<Screen>,
-    instruments: Res<AllInstruments>,
+    // instruments: Res<AllInstruments>,
     phrases: Res<AllPhrases>,
     chains: Res<AllChains>,
     song: Res<Song>,
     display_cursor: Res<DisplayCursor>,
     last_viewed: ResMut<LastViewed>,
-    gamepads: Res<Gamepads>,
+    // gamepads: Res<Gamepads>,
 ) {
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
+    // let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+    //     // no gamepad is connected
+    //     return;
+    // };
 
-    let left_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadLeft,
-    };
-    let right_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadRight,
-    };
-    let a_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::East,
-    };
+    let left_button = GamepadButton::DPadLeft;
+    let right_button = GamepadButton::DPadRight;
+    let a_button = GamepadButton::East;
 
     // if let Some(gp) = gamepads.name(gamepad) {
     //     warn!("game pad name = {gp}");
     // }
 
-    let shift_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::West,
-    };
+    let shift_button = GamepadButton::West;
 
     //     if let Some(name) = gamepads.name(gamepad)
     //     && name.starts_with("PS5")
@@ -343,7 +331,7 @@ fn screen_change(
         // (*screen_will_be).0 = Some(screen);
         if let Some((screen, screen_state)) = update_state(
             screen_res.clone(),
-            instruments,
+            // instruments,
             phrases,
             chains,
             song,
@@ -370,7 +358,7 @@ fn screen_change(
         // (*screen_will_be).0 = Some(screen);
         if let Some((screen, screen_state)) = update_state(
             screen_res.clone(),
-            instruments,
+            // instruments,
             phrases,
             chains,
             song,

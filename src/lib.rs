@@ -1,6 +1,6 @@
 #![feature(let_chains)]
 use crate::config::ui::{get_config, TrackerConfig};
-use bevy::{a11y::AccessibilityPlugin, log::LogPlugin, prelude::*};
+use bevy::{diagnostic::FrameCountPlugin, log::LogPlugin, prelude::*};
 use bevy_midi::output::{MidiOutputPlugin, MidiOutputSettings};
 use chain_menu::ChainMenuPlugin;
 use config::ui::{ColorsConfig, FontConfig, MenuUiConf, TabUiConf, UiConfig};
@@ -150,9 +150,9 @@ fn start(io: RustIPC) {
         .add_plugins(
             DefaultPlugins
                 .build()
-                .disable::<WindowPlugin>()
+                // .disable::<WindowPlugin>()
                 .disable::<FrameCountPlugin>()
-                .disable::<AccessibilityPlugin>()
+                // .disable::<AccessibilityPlugin>()
                 .set(LogPlugin {
                     // filter: "info,wgpu_core=warn,wgpu_hal=warn,mygame=debug".into(),
                     // #[cfg(debug_assertions)]

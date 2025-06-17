@@ -1,5 +1,4 @@
 use crate::{
-    controls::MyGamepad,
     pygame_coms::Screen,
     tracker_state::{AllPhrases, StateUpdated, Tempo},
     PlayingState,
@@ -109,7 +108,7 @@ fn cleanup(
 ) {
     // set playback cursor loc.
     playing_phrase.2 = None;
-    state_updated.send_default();
+    state_updated.write_default();
 }
 
 // fn refresh_ports(output: Res<MidiOutput>) {
@@ -288,72 +287,79 @@ fn send_notes(
         };
 
         // warn!("playing.1 = {}, playing.2 = {:?}", playing.1, playing.2);
-        state_updated.send_default();
+        state_updated.write_default();
     }
 
     _ = last_played.0.insert(pulse.n_pulses);
 }
 
 fn start_playing(
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
-    gamepads: Res<Gamepads>,
+    // buttons: <ButtonInput<GamepadButton>>,
+    buttons: Single<&Gamepad>,
+    // my_gamepad: Option<Res<MyGamepad>>,
+    // gamepads: Res<Gamepads>,
     mut playing_state: ResMut<NextState<PlayingState>>,
     // output: Res<MidiOutput>,
 ) {
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
+    // let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+    //     // no gamepad is connected
+    //     return;
+    // };
 
-    let start_button = if let Some(name) = gamepads.name(gamepad)
-        && name.starts_with("PS5")
-    {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Select,
-        }
-    } else {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Start,
-        }
-    };
+    // let start_button = if let Some(name) = gamepads.name(gamepad)
+    //     && name.starts_with("PS5")
+    // {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Select,
+    //     }
+    // } else {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Start,
+    //     }
+    // };
+    // let Ok(buttons) = gamepads.single() else {
+    //     return;
+    // };
 
-    if buttons.just_released(start_button)
-        && !buttons.pressed(GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Mode,
-        })
-    {
+    let start_button = GamepadButton::Start;
+
+    if buttons.just_released(start_button) && !buttons.pressed(GamepadButton::Mode) {
         playing_state.set(PlayingState::Playing);
     }
 }
 
 fn stop_playing(
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
-    gamepads: Res<Gamepads>,
+    // buttons: Res<ButtonInput<GamepadButton>>,
+    buttons: Single<&Gamepad>,
+    // my_gamepad: Option<Res<MyGamepad>>,
+    // gamepads: Res<Gamepads>,
     mut playing_state: ResMut<NextState<PlayingState>>,
 ) {
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
-
-    let start_button = if let Some(name) = gamepads.name(gamepad)
-        && name.starts_with("PS5")
-    {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Select,
-        }
-    } else {
-        GamepadButton {
-            gamepad,
-            button_type: GamepadButtonType::Start,
-        }
-    };
+    // let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+    //     // no gamepad is connected
+    //     return;
+    // };
+    //
+    // let start_button = if let Some(name) = gamepads.name(gamepad)
+    //     && name.starts_with("PS5")
+    // {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Select,
+    //     }
+    // } else {
+    //     GamepadButton {
+    //         gamepad,
+    //         button_type: GamepadButtonType::Start,
+    //     }
+    // };
+    //
+    // if buttons.just_released(start_button) {
+    //     playing_state.set(PlayingState::NotPlaying);
+    // }
+    let start_button = GamepadButton::Start;
 
     if buttons.just_released(start_button) {
         playing_state.set(PlayingState::NotPlaying);

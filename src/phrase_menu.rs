@@ -1,5 +1,5 @@
 use crate::{
-    controls::{LastAdded, MyGamepad},
+    controls::LastAdded,
     pygame_coms::{DisplayCursor, Index, Instrument, Note, Screen},
     tracker_state::{AllInstruments, AllPhrases, StateUpdated},
     ExitMenuState, ScreenState,
@@ -139,43 +139,37 @@ fn set_cursor(mut display_cursor: ResMut<DisplayCursor>) {
 fn set_select(
     mut display_cursor: ResMut<DisplayCursor>,
     mut state_updated: EventWriter<StateUpdated>,
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    // buttons: Res<ButtonInput<GamepadButton>>,
+    buttons: Single<&Gamepad>,
+    // my_gamepad: Option<Res<MyGamepad>>,
     // mut select_event: EventWriter<EnterSelect>,
     mut edit_note_event: EventWriter<EditNote>,
     mut edit_inst_event: EventWriter<EditInst>,
     mut edit_cmd_event: EventWriter<EditCmd>,
 ) {
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
+    // let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+    //     // no gamepad is connected
+    //     return;
+    // };
 
-    let a_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::East,
-    };
-
-    let b_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::South,
-    };
+    let a_button = GamepadButton::East;
+    let b_button = GamepadButton::South;
 
     if ((!buttons.pressed(a_button) && display_cursor.selected)
         || (buttons.pressed(a_button) && !display_cursor.selected))
         && !buttons.pressed(b_button)
     {
         // state_updated.0 = true;
-        state_updated.send_default();
+        state_updated.write_default();
         display_cursor.selected = !(!buttons.pressed(a_button) && display_cursor.selected)
             || (buttons.pressed(a_button) && !display_cursor.selected);
 
         if display_cursor.col == 0 {
-            edit_note_event.send_default();
+            edit_note_event.write_default();
         } else if display_cursor.col == 1 {
-            edit_inst_event.send_default();
+            edit_inst_event.write_default();
         } else if display_cursor.col == 2 {
-            edit_cmd_event.send_default();
+            edit_cmd_event.write_default();
         }
     }
 }
@@ -184,42 +178,25 @@ fn change_entry(
     phrases: Res<AllPhrases>,
     display_cursor: Res<DisplayCursor>,
     // state_updated: EventWriter<StateUpdated>,
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    // buttons: Res<ButtonInput<GamepadButton>>,
+    buttons: Single<&Gamepad>,
+    // my_gamepad: Option<Res<MyGamepad>>,
     phrase_index: Res<PhraseIndex>,
     mut edit_note_event: EventWriter<EditNote>,
     mut edit_inst_event: EventWriter<EditInst>,
     mut edit_cmd_event: EventWriter<EditCmd>,
 ) {
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
+    // let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+    //     // no gamepad is connected
+    //     return;
+    // };
 
-    let up_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadUp,
-    };
-    let down_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadDown,
-    };
-    let left_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadLeft,
-    };
-    let right_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadRight,
-    };
-    let a_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::East,
-    };
-    let b_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::South,
-    };
+    let up_button = GamepadButton::DPadUp;
+    let down_button = GamepadButton::DPadDown;
+    let left_button = GamepadButton::DPadLeft;
+    let right_button = GamepadButton::DPadRight;
+    let a_button = GamepadButton::East;
+    let b_button = GamepadButton::South;
 
     let phrase_i = phrase_index.0;
 
@@ -236,13 +213,13 @@ fn change_entry(
     {
         if display_cursor.col == 0 {
             // send edit note event
-            edit_note_event.send(EditNote { delta: 1 });
+            edit_note_event.write(EditNote { delta: 1 });
         } else if display_cursor.col == 1 {
             // send edit instrument event
-            edit_inst_event.send(EditInst { delta: 1 });
+            edit_inst_event.write(EditInst { delta: 1 });
         } else if display_cursor.col == 2 {
             // send edit command event
-            edit_cmd_event.send(EditCmd {
+            edit_cmd_event.write(EditCmd {
                 change_cmd: true,
                 up: true,
             });
@@ -259,13 +236,13 @@ fn change_entry(
     {
         if display_cursor.col == 0 {
             // send edit note event
-            edit_note_event.send(EditNote { delta: 12 });
+            edit_note_event.write(EditNote { delta: 12 });
         } else if display_cursor.col == 1 {
             // send edit instrument event
-            edit_inst_event.send(EditInst { delta: 16 });
+            edit_inst_event.write(EditInst { delta: 16 });
         } else if display_cursor.col == 2 {
             // send edit command event
-            edit_cmd_event.send(EditCmd {
+            edit_cmd_event.write(EditCmd {
                 change_cmd: false,
                 up: true,
             });
@@ -282,13 +259,13 @@ fn change_entry(
     {
         if display_cursor.col == 0 {
             // send edit note event
-            edit_note_event.send(EditNote { delta: -1 });
+            edit_note_event.write(EditNote { delta: -1 });
         } else if display_cursor.col == 1 {
             // send edit instrument event
-            edit_inst_event.send(EditInst { delta: -1 });
+            edit_inst_event.write(EditInst { delta: -1 });
         } else if display_cursor.col == 2 {
             // send edit command event
-            edit_cmd_event.send(EditCmd {
+            edit_cmd_event.write(EditCmd {
                 change_cmd: true,
                 up: false,
             });
@@ -305,13 +282,13 @@ fn change_entry(
     {
         if display_cursor.col == 0 {
             // send edit note event
-            edit_note_event.send(EditNote { delta: -12 });
+            edit_note_event.write(EditNote { delta: -12 });
         } else if display_cursor.col == 1 {
             // send edit instrument event
-            edit_inst_event.send(EditInst { delta: -16 });
+            edit_inst_event.write(EditInst { delta: -16 });
         } else if display_cursor.col == 2 {
             // send edit command event
-            edit_cmd_event.send(EditCmd {
+            edit_cmd_event.write(EditCmd {
                 change_cmd: false,
                 up: false,
             });
@@ -344,7 +321,7 @@ fn edit_note(
                     }
                     last_added.note = *note;
                     // state_updated.0 = true;
-                    state_updated.send_default();
+                    state_updated.write_default();
                 } else {
                     warn!("not changing note.");
                 }
@@ -352,7 +329,7 @@ fn edit_note(
                 info!("adding MIDI note {}.", last_added.note);
                 phrase.rows[display_cursor.row].note = Some(last_added.note);
                 // state_updated.0 = true;
-                state_updated.send_default();
+                state_updated.write_default();
             }
         } else {
             error!("attempting to edit a note phrase {phrase_i}, which does not exist.");
@@ -385,7 +362,7 @@ fn edit_inst(
                     }
                     last_added.instrument = *inst;
                     // state_updated.0 = true;
-                    state_updated.send_default();
+                    state_updated.write_default();
 
                     if instruments.0.get(*inst).is_none() {
                         for _ in instruments.0.len()..*inst {
@@ -405,7 +382,7 @@ fn edit_inst(
             } else {
                 phrase.rows[display_cursor.row].instrument = Some(last_added.instrument);
                 // state_updated.0 = true;
-                state_updated.send_default();
+                state_updated.write_default();
             }
         } else {
             error!("attempting to edit an instruemnt in phrase {phrase_i}, which does not exist.");
@@ -446,7 +423,7 @@ fn edit_cmd(
             } else {
                 phrase.rows[display_cursor.row].command = Some(last_added.command);
                 // state_updated.0 = true;
-                state_updated.send_default();
+                state_updated.write_default();
             }
         } else {
             error!("attempting to edit a note phrase {phrase_i}, which does not exist.");
@@ -455,38 +432,26 @@ fn edit_cmd(
 }
 
 fn movement(
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    // buttons: Res<ButtonInput<GamepadButton>>,
+    buttons: Single<&Gamepad>,
+    // my_gamepad: Option<Res<MyGamepad>>,
     mut display_cursor: ResMut<DisplayCursor>,
     mut state_updated: EventWriter<StateUpdated>,
-    gamepads: Res<Gamepads>,
+    // gamepads: Res<Gamepads>,
 ) {
     if display_cursor.selected {
         return;
     }
 
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
+    // let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+    //     // no gamepad is connected
+    //     return;
+    // };
 
-    let up_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadUp,
-    };
-    let down_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadDown,
-    };
-
-    let left_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadLeft,
-    };
-    let right_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::DPadRight,
-    };
+    let up_button = GamepadButton::DPadUp;
+    let down_button = GamepadButton::DPadDown;
+    let left_button = GamepadButton::DPadLeft;
+    let right_button = GamepadButton::DPadRight;
 
     // let start_button = if let Some(name) = gamepads.name(gamepad)
     //     && name.starts_with("PS5")
@@ -501,10 +466,7 @@ fn movement(
     //         button_type: GamepadButtonType::Select,
     //     }
     // };
-    let shift_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::West,
-    };
+    let shift_button = GamepadButton::West;
 
     if buttons.just_released(up_button) && !buttons.pressed(shift_button) {
         let new_row = if display_cursor.row == 0 {
@@ -515,7 +477,7 @@ fn movement(
 
         display_cursor.row = new_row;
         // state_updated.0 = true;
-        state_updated.send_default();
+        state_updated.write_default();
     }
 
     if buttons.just_released(down_button) && !buttons.pressed(shift_button) {
@@ -527,7 +489,7 @@ fn movement(
 
         display_cursor.row = new_row;
         // state_updated.0 = true;
-        state_updated.send_default();
+        state_updated.write_default();
     }
 
     if buttons.just_released(left_button) && !buttons.pressed(shift_button) {
@@ -539,7 +501,7 @@ fn movement(
 
         display_cursor.col = new_col;
         // state_updated.0 = true;
-        state_updated.send_default();
+        state_updated.write_default();
     }
 
     if buttons.just_released(right_button) && !buttons.pressed(shift_button) {
@@ -551,31 +513,26 @@ fn movement(
 
         display_cursor.col = new_col;
         // state_updated.0 = true;
-        state_updated.send_default();
+        state_updated.write_default();
     }
 }
 
 fn rm(
-    buttons: Res<ButtonInput<GamepadButton>>,
-    my_gamepad: Option<Res<MyGamepad>>,
+    // buttons: Res<ButtonInput<GamepadButton>>,
+    buttons: Single<&Gamepad>,
+    // my_gamepad: Option<Res<MyGamepad>>,
     phrase_index: Res<PhraseIndex>,
     display_cursor: Res<DisplayCursor>,
     mut state_updated: EventWriter<StateUpdated>,
     mut phrases: ResMut<AllPhrases>,
 ) {
-    let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
-        // no gamepad is connected
-        return;
-    };
+    // let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
+    //     // no gamepad is connected
+    //     return;
+    // };
 
-    let b_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::South,
-    };
-    let a_button = GamepadButton {
-        gamepad,
-        button_type: GamepadButtonType::East,
-    };
+    let b_button = GamepadButton::South;
+    let a_button = GamepadButton::East;
 
     // if let Screen::EditChain(chain) = *screen
     if let Some(ref mut phrase) = phrases.deref_mut().0[phrase_index.0]
@@ -600,7 +557,7 @@ fn rm(
         warn!("rming something");
 
         // state_updated.0 = true;
-        state_updated.send_default();
+        state_updated.write_default();
     }
     // else {
     //     warn!("not rming");
