@@ -330,14 +330,14 @@ def proccess_state_change():
             # log.error("not yet implemented")
             draw_phrase(state)
             draw_side(state, 2)
-        case ScreenData.Instrument(_):
-            log.info("Instrument tab state recieved")
-            # log.error("not yet implemented")
-            draw_inst(state)
-            draw_side(state, 3)
-        case ScreenData.PlaySynth():
-            log.info("Synth tab state recieved")
-            log.error("not yet implemented")
+        # case ScreenData.Instrument(_):
+        #     log.info("Instrument tab state recieved")
+        #     # log.error("not yet implemented")
+        #     draw_inst(state)
+        #     draw_side(state, 3)
+        # case ScreenData.PlaySynth():
+        #     log.info("Synth tab state recieved")
+        #     log.error("not yet implemented")
         case ScreenData.Settings():
             log.info("Settings tab state recieved")
             log.error("not yet implemented")

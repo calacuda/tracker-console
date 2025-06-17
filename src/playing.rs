@@ -25,7 +25,7 @@ pub struct SyncPulse {
 pub struct SyncTimer(Timer);
 
 #[derive(Resource, Clone, Debug, Copy, Eq, Hash, PartialEq)]
-pub struct PlayingPhrase(usize, usize, Option<usize>); // phrase index, step index,
+pub struct PlayingPhrase(pub usize, pub usize, pub Option<usize>); // phrase index, step index,
 
 #[derive(Resource, Clone, Debug, Eq, PartialEq)]
 pub struct ControllerName(String);
@@ -54,6 +54,7 @@ impl Plugin for MidiOutPlugin {
         )
         .add_systems(Update, stop_playing.run_if(in_state(PlayingState::Playing)))
         .add_systems(OnEnter(PlayingState::Playing), setup)
+        .add_systems(OnExit(PlayingState::Playing), cleanup)
         .add_systems(
             Update,
             sync.run_if(in_state(PlayingState::Playing)),
@@ -100,6 +101,15 @@ fn setup(
 
     refresh_ports(&output);
     connect(output, connection, controller);
+}
+
+fn cleanup(
+    mut playing_phrase: ResMut<PlayingPhrase>,
+    mut state_updated: EventWriter<StateUpdated>,
+) {
+    // set playback cursor loc.
+    playing_phrase.2 = None;
+    state_updated.send_default();
 }
 
 // fn refresh_ports(output: Res<MidiOutput>) {
@@ -218,7 +228,7 @@ fn not_played_yet(last_played: Res<LastPlayedPulse>, pulse: Res<SyncPulse>) -> b
     // );
 
     if let Some(lp) = last_played.0 {
-        info!("n_pulses: {}, last_played: {}", pulse.n_pulses, lp);
+        debug!("n_pulses: {}, last_played: {}", pulse.n_pulses, lp);
 
         pulse.n_pulses > lp
     } else {
@@ -289,7 +299,7 @@ fn start_playing(
     my_gamepad: Option<Res<MyGamepad>>,
     gamepads: Res<Gamepads>,
     mut playing_state: ResMut<NextState<PlayingState>>,
-    output: Res<MidiOutput>,
+    // output: Res<MidiOutput>,
 ) {
     let Some(&MyGamepad(gamepad)) = my_gamepad.as_deref() else {
         // no gamepad is connected

@@ -25,7 +25,7 @@ pub struct FontConfig {
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Copy, Eq, Hash, PartialEq)]
 pub struct ColorsConfig {
     pub back_ground: Color,
-    pub hight_light: Color,
+    pub highlight: Color,
     pub text: Color,
     pub text_alt: Color,
     pub border: Color,
@@ -68,7 +68,8 @@ pub fn get_config() -> TrackerConfig {
     // config.colors.text = [10, 100, 20];
     config.colors.text = [166, 227, 161];
     config.colors.back_ground = [30, 30, 46];
-    config.colors.cursor = [137, 180, 250];
+    config.colors.highlight = [137, 180, 250];
+    config.colors.cursor = [250, 179, 135];
     config.ui.menu.tempo = 1.0 / 6.0;
     config.ui.menu.note_display = 2.0 / 6.0;
     config.font.size = vec![30];

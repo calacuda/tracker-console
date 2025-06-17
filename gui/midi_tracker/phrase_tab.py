@@ -9,6 +9,7 @@ class PhrasesTab:
         # self.config = config
         (self.screen_width, self.screen_height) = pg_state.screen_size
         self.pg_state = pg_state
+        self.playing_step = state.screen.row
 
     def draw(self):
         right_most = (self.screen_width * self.pg_state.config.ui.tab.width)
@@ -18,13 +19,13 @@ class PhrasesTab:
         self.draw_tab_lable(right_most, height)
         self.draw_col_lable(height, col_width)
 
-        self.draw_rows(self.state.screen._0.rows, height, col_width)
+        self.draw_rows(self.state.screen.phrase.rows, height, col_width)
 
     def draw_tab_lable(self, right_most: float, height: float):
         middle_x = right_most * 0.5
         middle_y = height * 0.5
         color = self.pg_state.config.colors.text
-        n = self.state.screen._0.name
+        n = self.state.screen.phrase.name
 
         display = self.pg_state.fonts[0].render(
             f"Phrase {n:02X}", True, color)
@@ -79,6 +80,11 @@ class PhrasesTab:
                 if row_i == self.state.display_cursor.row and col_i - 1 == self.state.display_cursor.col and self.state.display_cursor.selected:
                     self.pg_state.draw_rect(
                         (middle_x, middle_y), (col_width, height), self.pg_state.config.colors.cursor)
+                elif col_i == 0 and self.playing_step is not None and self.playing_step == row_i:
+                    self.pg_state.draw_rect(
+                        (middle_x, middle_y), (col_width, height), self.pg_state.config.colors.highlight)
+                    self.pg_state.draw_rect(
+                        (middle_x, middle_y), (col_width - 5, height - 5), self.pg_state.config.colors.back_ground)
                 elif row_i == self.state.display_cursor.row and col_i - 1 == self.state.display_cursor.col:
                     self.pg_state.draw_rect(
                         (middle_x, middle_y), (col_width, height), self.pg_state.config.colors.cursor)

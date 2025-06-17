@@ -219,8 +219,8 @@ pub enum Screen {
     Song(),
     EditChain(Index),
     EditPhrase(Index),
-    Instrument(Index),
-    PlaySynth(),
+    // Instrument(Index),
+    // PlaySynth(),
     Settings(),
 }
 
@@ -268,9 +268,9 @@ pub struct DisplayCursor {
 pub enum ScreenData {
     Song(Song),
     Chain(Chain),
-    Phrase(Phrase),
-    Instrument(Instrument),
-    PlaySynth(),
+    Phrase { phrase: Phrase, row: Option<usize> },
+    // Instrument(Instrument),
+    // PlaySynth(),
     Settings(),
 }
 

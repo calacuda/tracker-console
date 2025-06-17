@@ -23,8 +23,8 @@ pub enum ScreenState {
     EditSong,
     EditChain,
     EditPhrase,
-    EditInsts,
-    PlaySynth,
+    // EditInsts,
+    // PlaySynth,
     Settings,
 }
 

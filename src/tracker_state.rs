@@ -1,11 +1,12 @@
 use crate::{
     config::ui::Bpm,
     ipc::RustIPC,
+    playing::PlayingPhrase,
     pygame_coms::{
         Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper, Screen,
         ScreenData, Song, State,
     },
-    ScreenState,
+    PlayingState, ScreenState,
 };
 use bevy::{log::*, prelude::*};
 
@@ -33,8 +34,8 @@ impl Plugin for TrackerStatePlugin {
             .add_systems(OnEnter(ScreenState::EditSong), send_state)
             .add_systems(OnEnter(ScreenState::EditChain), send_state)
             .add_systems(OnEnter(ScreenState::EditPhrase), send_state)
-            .add_systems(OnEnter(ScreenState::EditInsts), send_state)
-            .add_systems(OnEnter(ScreenState::PlaySynth), send_state)
+            // .add_systems(OnEnter(ScreenState::EditInsts), send_state)
+            // .add_systems(OnEnter(ScreenState::PlaySynth), send_state)
             .add_systems(OnEnter(ScreenState::Settings), send_state);
     }
 }
@@ -97,15 +98,27 @@ fn update_state(
     display_cursor: Res<DisplayCursor>,
     song: Res<Song>,
     // playing: Res<PlaybackCursor>,
+    play_state: Res<bevy::prelude::State<PlayingState>>,
+    playing_phrase: Res<PlayingPhrase>,
 ) {
     for _ev in state_update_events.read() {
         let screen = match *screen {
             Screen::Song() => ScreenData::Song(song.clone()),
             Screen::Settings() => ScreenData::Settings(),
             Screen::EditChain(i) => ScreenData::Chain(chains.0[i].unwrap()),
-            Screen::EditPhrase(i) => ScreenData::Phrase(phrases.0[i].unwrap()),
-            Screen::Instrument(i) => ScreenData::Instrument(instruments.0[i].clone().unwrap()),
-            Screen::PlaySynth() => ScreenData::PlaySynth(),
+            Screen::EditPhrase(i) => {
+                let row = if play_state.get() == &PlayingState::Playing {
+                    Some(playing_phrase.2.unwrap_or(0))
+                } else {
+                    None
+                };
+
+                ScreenData::Phrase {
+                    phrase: phrases.0[i].unwrap(),
+                    row,
+                }
+            } // Screen::Instrument(i) => ScreenData::Instrument(instruments.0[i].clone().unwrap()),
+              // Screen::PlaySynth() => ScreenData::PlaySynth(),
         };
 
         let notes = match playing.0.lock().unwrap().clone() {

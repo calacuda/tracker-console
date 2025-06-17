@@ -155,68 +155,88 @@ fn update_state(
             }
         }
         // edit_phrase -> edit_instrument
-        (Screen::EditPhrase(phrase_i), ScreenState::EditInsts) => {
-            let instrument =
-                phrases.deref().0[phrase_i].unwrap().rows[display_cursor.row].instrument;
-
-            if let Some(instrument_i) = instrument {
-                // *screen = Screen::Instrument(instrument_i);
-                last_viewed.phrase = phrase_i;
-                Some((Screen::Instrument(instrument_i), ScreenState::EditInsts))
-            } else if let Some(inst) = instruments.0.get(last_viewed.instrument % 256)
-                && inst.is_some()
-            {
-                // *screen = Screen::Instrument(last_viewed.instrument % instruments.0.len());
-                last_viewed.phrase = phrase_i;
-                Some((
-                    Screen::Instrument(last_viewed.instrument % 256),
-                    ScreenState::EditInsts,
-                ))
-            } else {
-                warn!("{last_viewed:?} <===> {instrument:?}");
-                None
-            }
+        // (Screen::EditPhrase(phrase_i), ScreenState::EditInsts) => {
+        //     let instrument =
+        //         phrases.deref().0[phrase_i].unwrap().rows[display_cursor.row].instrument;
+        //
+        //     if let Some(instrument_i) = instrument {
+        //         // *screen = Screen::Instrument(instrument_i);
+        //         last_viewed.phrase = phrase_i;
+        //         Some((Screen::Instrument(instrument_i), ScreenState::EditInsts))
+        //     } else if let Some(inst) = instruments.0.get(last_viewed.instrument % 256)
+        //         && inst.is_some()
+        //     {
+        //         // *screen = Screen::Instrument(last_viewed.instrument % instruments.0.len());
+        //         last_viewed.phrase = phrase_i;
+        //         Some((
+        //             Screen::Instrument(last_viewed.instrument % 256),
+        //             ScreenState::EditInsts,
+        //         ))
+        //     } else {
+        //         warn!("{last_viewed:?} <===> {instrument:?}");
+        //         None
+        //     }
+        // }
+        // // edit_instrument -> edit_phrase
+        // (Screen::Instrument(inst_i), ScreenState::EditPhrase) => {
+        //     // *screen = Screen::EditPhrase(last_viewed.phrase);
+        //     if chains.0.get(last_viewed.chain).is_some() {
+        //         last_viewed.instrument = inst_i;
+        //         Some((
+        //             Screen::EditPhrase(last_viewed.phrase),
+        //             ScreenState::EditPhrase,
+        //         ))
+        //     } else {
+        //         None
+        //     }
+        // }
+        // // edit_instrument -> play_synth
+        // (Screen::Instrument(inst_i), ScreenState::PlaySynth) => {
+        //     // *screen = Screen::PlaySynth();
+        //     last_viewed.instrument = inst_i;
+        //     Some((Screen::PlaySynth(), ScreenState::PlaySynth))
+        // }
+        // // play_synth -> edit_instrument
+        // (Screen::PlaySynth(), ScreenState::EditInsts) => {
+        //     // *screen = Screen::Instrument(last_viewed.instrument);
+        //     if instruments.0.get(last_viewed.instrument).is_some() {
+        //         Some((
+        //             Screen::Instrument(last_viewed.instrument),
+        //             ScreenState::EditInsts,
+        //         ))
+        //     } else {
+        //         None
+        //     }
+        // }
+        // // play_synth -> settings
+        // (Screen::PlaySynth(), ScreenState::Settings) => {
+        //     // *screen = Screen::Settings();
+        //     Some((Screen::Settings(), ScreenState::Settings))
+        // }
+        // // settings -> play_synth
+        // (Screen::Settings(), ScreenState::PlaySynth) => {
+        //     // *screen = Screen::PlaySynth();
+        //     Some((Screen::PlaySynth(), ScreenState::PlaySynth))
+        // }
+        // settings -> edit_phrase
+        (Screen::Settings(), ScreenState::EditPhrase) => {
+            Some((
+                Screen::EditPhrase(last_viewed.phrase),
+                ScreenState::EditPhrase,
+            ))
         }
-        // edit_instrument -> edit_phrase
-        (Screen::Instrument(inst_i), ScreenState::EditPhrase) => {
-            // *screen = Screen::EditPhrase(last_viewed.phrase);
-            if chains.0.get(last_viewed.chain).is_some() {
-                last_viewed.instrument = inst_i;
-                Some((
-                    Screen::EditPhrase(last_viewed.phrase),
-                    ScreenState::EditPhrase,
-                ))
-            } else {
-                None
-            }
-        }
-        // edit_instrument -> play_synth
-        (Screen::Instrument(inst_i), ScreenState::PlaySynth) => {
-            // *screen = Screen::PlaySynth();
-            last_viewed.instrument = inst_i;
-            Some((Screen::PlaySynth(), ScreenState::PlaySynth))
-        }
-        // play_synth -> edit_instrument
-        (Screen::PlaySynth(), ScreenState::EditInsts) => {
-            // *screen = Screen::Instrument(last_viewed.instrument);
-            if instruments.0.get(last_viewed.instrument).is_some() {
-                Some((
-                    Screen::Instrument(last_viewed.instrument),
-                    ScreenState::EditInsts,
-                ))
-            } else {
-                None
-            }
-        }
-        // play_synth -> settings
-        (Screen::PlaySynth(), ScreenState::Settings) => {
+        // edit phrase -> settings
+        (Screen::EditPhrase(phrase_i), ScreenState::Settings) => {
             // *screen = Screen::Settings();
+            if phrases.0.get(last_viewed.chain).is_some() {
+                last_viewed.phrase = phrase_i;
+                // Some((Screen::EditChain(last_viewed.chain), ScreenState::EditChain))
+            } 
+            // else {
+            //     None
+            // }
+
             Some((Screen::Settings(), ScreenState::Settings))
-        }
-        // settings -> play_synth
-        (Screen::Settings(), ScreenState::PlaySynth) => {
-            // *screen = Screen::PlaySynth();
-            Some((Screen::PlaySynth(), ScreenState::PlaySynth))
         }
         // settings -> edit_song
         (Screen::Settings(), ScreenState::EditSong) => {
@@ -226,8 +246,8 @@ fn update_state(
         (Screen::Song(), ScreenState::EditSong)
         | (Screen::EditChain(_), ScreenState::EditChain)
         | (Screen::EditPhrase(_), ScreenState::EditPhrase)
-        | (Screen::Instrument(_), ScreenState::EditInsts)
-        | (Screen::PlaySynth(), ScreenState::PlaySynth)
+        // | (Screen::Instrument(_), ScreenState::EditInsts)
+        // | (Screen::PlaySynth(), ScreenState::PlaySynth)
         | (Screen::Settings(), ScreenState::Settings) => None,
         (from, to) => {
             error!("transisioning from tab: {from:?} to tab: {to:?}, is illegal");
@@ -296,8 +316,8 @@ fn screen_change(
         ScreenState::EditSong,
         ScreenState::EditChain,
         ScreenState::EditPhrase,
-        ScreenState::EditInsts,
-        ScreenState::PlaySynth,
+        // ScreenState::EditInsts,
+        // ScreenState::PlaySynth,
         ScreenState::Settings,
     ];
 

@@ -265,7 +265,7 @@ pub struct FontConfig {
 #[derive(Serialize, Deserialize, Default, Clone, Debug, Copy, Eq, Hash, PartialEq)]
 pub struct ColorsConfig {
     pub back_ground: Color,
-    pub hight_light: Color,
+    pub highlight: Color,
     pub text: Color,
     pub text_alt: Color,
     pub border: Color,
