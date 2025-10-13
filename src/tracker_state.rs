@@ -1,12 +1,12 @@
 use crate::{
     config::ui::Bpm,
     ipc::RustIPC,
-    playing::PlayingPhrase,
+    playing::{PlayingSyncPulse, SyncPulse, BPQ},
     pygame_coms::{
         Chains, DisplayCursor, Instruments, Phrases, PlaybackCursor, PlaybackCursorWrapper, Screen,
         ScreenData, Song, State,
     },
-    PlayingState, ScreenState,
+    ScreenState,
 };
 use bevy::{log::*, prelude::*};
 
@@ -98,8 +98,11 @@ fn update_state(
     display_cursor: Res<DisplayCursor>,
     song: Res<Song>,
     // playing: Res<PlaybackCursor>,
-    play_state: Res<bevy::prelude::State<PlayingState>>,
-    playing_phrase: Res<PlayingPhrase>,
+    // play_state: Res<bevy::prelude::State<PlayingState>>,
+    // playing_phrase: Res<PlayingPhrase>,
+    bpq: Res<BPQ>,
+    sync_pulse: Res<SyncPulse>,
+    syncing: Res<PlayingSyncPulse>,
 ) {
     for _ev in state_update_events.read() {
         let screen = match *screen {
@@ -107,8 +110,8 @@ fn update_state(
             Screen::Settings() => ScreenData::Settings(),
             Screen::EditChain(i) => ScreenData::Chain(chains.0[i].unwrap()),
             Screen::EditPhrase(i) => {
-                let row = if play_state.get() == &PlayingState::Playing {
-                    Some(playing_phrase.2.unwrap_or(0))
+                let row = if syncing.0 {
+                    Some((sync_pulse.n_pulses / (bpq.0 / 4)) % 16)
                 } else {
                     None
                 };
